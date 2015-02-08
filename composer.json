@@ -1,0 +1,23 @@
+{
+    "name":"wa72/adaptimage",
+    "description":"Easily resize images to pre-defined sizes, generate thumbnails, and cache them",
+    "type":"library",
+    "license":"MIT",
+    "authors":[
+        {
+            "name":"Christoph Singer",
+            "email":"singer@webagentur72.de",
+            "homepage":"http://www.webagentur72.de"
+        }
+    ],
+    "require":{
+        "php":">=5.3.6",
+	      "imagine/imagine": "~0.6",
+        "miljar/php-exif": "~0.2"
+    },
+    "autoload":{
+        "psr-4":{
+            "Wa72\\AdaptImage\\":"src/"
+        }
+    }
+}
