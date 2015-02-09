@@ -62,6 +62,8 @@ class FixOrientation implements  FilterInterface, ResizingFilterInterface
     {
         if ($this->orientation == 6 || $this->orientation == 8) {
             return new Box($size->getHeight(), $size->getWidth());
+        } else {
+            return $size;
         }
     }
 
