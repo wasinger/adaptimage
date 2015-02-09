@@ -4,27 +4,24 @@ namespace Wa72\AdaptImage\ImagineFilter;
 use Imagine\Image\ImageInterface;
 use Imagine\Image\BoxInterface;
 use Imagine\Image\Point;
-use Imagine\Filter\FilterInterface;
 
 /**
  * A crop filter that crops a specified box from the center of the image
  */
-class CropCenter implements FilterInterface, ResizingFilterInterface
+class CropCenter extends Crop
 {
-    /**
-     * @var BoxInterface
-     */
-    private $size;
-
     /**
      * Constructs a Crop filter with crop width and height values
      * The starting point will be calculated so that the given box is centered in the image
      *
-     * @param BoxInterface   $size
+     * @param BoxInterface $size
+     * @param bool $upscale If true, the image will be upscaled when it is smaller than the crop size
      */
-    public function __construct(BoxInterface $size)
+    public function __construct(BoxInterface $size, $upscale = false)
     {
         $this->size  = $size;
+        $this->upscale = $upscale;
+        $this->start = new Point(0,0);
     }
 
     /**
@@ -33,26 +30,10 @@ class CropCenter implements FilterInterface, ResizingFilterInterface
     public function apply(ImageInterface $image)
     {
         $imagesize = $image->getSize();
-        if ($this->size->contains($imagesize)) {
-            return $image;
-        }
-        $start = new Point(
+        $this->start = new Point(
             max(0, round(($imagesize->getWidth() - $this->size->getWidth()) / 2)),
             max(0, round(($imagesize->getHeight() - $this->size->getHeight()) / 2))
         );
-        return $image->crop($start, $this->size);
+        return parent::apply($image);
     }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function calculateSize(BoxInterface $size)
-    {
-        if ($this->size->contains($size)) {
-            return $size;
-        } else {
-            return $this->size;
-        }
-    }
-
 }
