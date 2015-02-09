@@ -73,12 +73,12 @@ class ImageResizeDefinition {
         $this->transformation = new Transformation();
         $this->resizefilter = new ProportionalResize(
             new Box($width, $height),
-            ($mode == self::MODE_MIN || $mode == self::MODE_CROP),
+            ($mode == ImageResizeDefinition::MODE_MIN || $mode == ImageResizeDefinition::MODE_CROP),
             $upscale,
             $scale_algorithm
         );
         $this->transformation->add($this->resizefilter);
-        if ($mode == self::MODE_CROP) {
+        if ($mode == ImageResizeDefinition::MODE_CROP) {
             $this->transformation->add(new CropCenter(new Box($width, $height)));
         }
         foreach ($filters as $filter) {

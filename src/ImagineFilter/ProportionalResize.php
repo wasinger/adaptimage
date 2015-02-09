@@ -82,8 +82,8 @@ class ProportionalResize implements FilterInterface, ResizingFilterInterface
             $this->size->getHeight() / $size->getHeight()
         );
         if (
-            ($this->min == false && $ratios[0] >= $ratios[1])
-            || ($this->min == true && $ratios[0] <= $ratios[1])
+            ($this->min == false && $ratios[0] <= $ratios[1])
+            || ($this->min == true && $ratios[0] >= $ratios[1])
         ) {
             $method = 'widen';
             $parameter = $this->size->getWidth();
