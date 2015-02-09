@@ -5,6 +5,7 @@ namespace Wa72\AdaptImage;
 use Imagine\Filter\Transformation;
 use Imagine\Image\Box;
 use Imagine\Image\ImagineInterface;
+use Wa72\AdaptImage\ImagineFilter\FixOrientation;
 use Wa72\AdaptImage\ImagineFilter\ResizingFilterInterface;
 
 /**
@@ -60,6 +61,13 @@ class CachingImageTransformer {
         // TODO: calculate new image type
         $imagetype = $image->getImagetype();
         $extension = image_type_to_extension($imagetype, false);
+
+        if ($image->getOrientation() != 1) {
+            if ($pre_transformation == null) {
+                $pre_transformation = new Transformation($this->imagine);
+            }
+            $pre_transformation->add(new FixOrientation($image->getOrientation()));
+        }
 
         if ($pre_transformation instanceof Transformation) {
             $additional_transformation_hash = md5(serialize($pre_transformation->getFilters()));

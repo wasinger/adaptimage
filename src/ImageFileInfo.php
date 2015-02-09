@@ -38,6 +38,8 @@ class ImageFileInfo {
      */
     protected $fileinfo;
 
+    protected $orientation = 1;
+
     /**
      * @var Exif
      */
@@ -49,8 +51,9 @@ class ImageFileInfo {
      * @param int $height
      * @param int $imagetype
      * @param int $last_modified
+     * @param int $orientation
      */
-    public function __construct($pathname, $width, $height, $imagetype, $last_modified = 0)
+    public function __construct($pathname, $width, $height, $imagetype, $last_modified = 0, $orientation = 1)
     {
         $this->pathname = $pathname;
         $this->fileinfo = new \SplFileInfo($this->pathname);
@@ -73,7 +76,8 @@ class ImageFileInfo {
         $height = $ii[1];
         $imagetype = $ii[2];
         $last_modified = filemtime($pathname);
-        return new static($pathname, $width, $height, $imagetype, $last_modified);
+        $orientation = (@exif_read_data($pathname)['Orientation'] ?: 1);
+        return new static($pathname, $width, $height, $imagetype, $last_modified, $orientation);
     }
 
     /**
@@ -151,6 +155,16 @@ class ImageFileInfo {
     {
         return $this->filemtime;
     }
+
+    /**
+     * @return int
+     */
+    public function getOrientation()
+    {
+        return $this->orientation;
+    }
+
+
 
     /**
      * Return IPTC data
