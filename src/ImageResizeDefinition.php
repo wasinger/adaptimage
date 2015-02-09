@@ -27,13 +27,6 @@ class ImageResizeDefinition {
     const MODE_CROP = 'crop';
 
     /**
-     * Default scale algorithm
-     *
-     * @var string One of the ImageInterface::FILTER_* constants
-     */
-    static $default_scale_algorithm = ImageInterface::FILTER_UNDEFINED;
-
-    /**
      * @var int
      */
     protected $width;
@@ -69,7 +62,7 @@ class ImageResizeDefinition {
      * @param string $mode one of the ImageResizeDefinition::MODE_* constants, i.e. 'max', 'min', or 'crop'
      * @param bool $upscale Should the image be upscaled if it is smaller than the new size?
      * @param FilterInterface[] $filters Additional Filters to apply, e.g. for sharpening
-     * @param string|null $scale_algorithm One of the ImageInterface::FILTER_* constants, defaults to ImageResizeDefinition::$default_scale_algorithm
+     * @param string|null $scale_algorithm One of the ImageInterface::FILTER_* constants, defaults to ProportionalResize::$default_scale_algorithm
      */
     public function __construct($width, $height, $mode = ImageResizeDefinition::MODE_MAX, $upscale = false, $filters = array(), $scale_algorithm = null)
     {
@@ -82,7 +75,7 @@ class ImageResizeDefinition {
             new Box($width, $height),
             ($mode == self::MODE_MIN || $mode == self::MODE_CROP),
             $upscale,
-            $scale_algorithm ?: self::$default_scale_algorithm
+            $scale_algorithm
         );
         $this->transformation->add($this->resizefilter);
         if ($mode == self::MODE_CROP) {

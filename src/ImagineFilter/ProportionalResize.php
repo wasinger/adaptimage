@@ -15,6 +15,13 @@ use Imagine\Image\ImageInterface;
 class ProportionalResize implements FilterInterface, ResizingFilterInterface
 {
     /**
+     * Default scale algorithm
+     *
+     * @var string One of the ImageInterface::FILTER_* constants
+     */
+    static $default_scale_algorithm = ImageInterface::FILTER_UNDEFINED;
+
+    /**
      * @var BoxInterface
      */
     private $size;
@@ -36,16 +43,18 @@ class ProportionalResize implements FilterInterface, ResizingFilterInterface
 
     /**
      * @param BoxInterface $size The size to which the image should be scaled
-     * @param bool $min If true, the smaller dimension is used for scaling (i.e. the resulting image will not fit into the bounding box)
+     * @param bool $min     If true, the smaller dimension is used for scaling
+     *                      (i.e. the resulting image will not fit into the bounding box)
      * @param bool $upscale Should the image be upscaled if it is smaller than new size?
-     * @param string $filter The algorithm used for scaling, one of the ImageInterface::FILTER_* constants
+     * @param string|null $scale_algorithm  One of the ImageInterface::FILTER_* constants,
+     *                                      defaults to ProportionalResize::$default_scale_algorithm
      */
-    public function __construct(BoxInterface $size, $min = false, $upscale = false, $filter = ImageInterface::FILTER_UNDEFINED)
+    public function __construct(BoxInterface $size, $min = false, $upscale = false, $scale_algorithm = null)
     {
         $this->size = $size;
         $this->min = $min;
         $this->upscale = $upscale;
-        $this->filter = $filter;
+        $this->filter = ($scale_algorithm ?: static::$default_scale_algorithm);
     }
 
     /**
