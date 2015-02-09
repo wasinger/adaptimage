@@ -2,6 +2,7 @@
 namespace Wa72\AdaptImage;
 
 use Imagine\Filter\Basic\Strip;
+use Imagine\Filter\FilterInterface;
 use Imagine\Image\ImageInterface;
 use Imagine\Image\ImagineInterface;
 use Imagine\Image\Point;
@@ -23,11 +24,12 @@ class ThumbnailGenerator {
      * @param int $width            The width of the thumbnail
      * @param int $height           The height of the thumbnail
      * @param string $mode          One of ImageInterface::THUMBNAIL_INSET or ImageInterface::THUMBNAIL_OUTBOUND
+     * @param FilterInterface[] $filters    Additional Filters to apply, e.g. for sharpening
      */
-    public function __construct(ImagineInterface $imagine, $cache_dir, $width, $height, $mode = ImageInterface::THUMBNAIL_INSET)
+    public function __construct(ImagineInterface $imagine, $cache_dir, $width, $height, $mode = ImageInterface::THUMBNAIL_INSET, $filters = array())
     {
         $mode = ($mode == ImageInterface::THUMBNAIL_INSET ? ImageResizeDefinition::MODE_MAX : ImageResizeDefinition::MODE_CROP);
-        $ird = new ImageResizeDefinition($width, $height, $mode);
+        $ird = new ImageResizeDefinition($width, $height, $mode, false, $filters);
         $transformation = $ird->getTransformation();
         $transformation->add(new Strip());
         $this->transformer = new CachingImageTransformer($imagine, $transformation, $cache_dir);
