@@ -35,7 +35,7 @@ class ImageFileInfo {
      */
     protected $fileinfo;
 
-    protected $orientation = 1;
+    protected $orientation = 0;
 
     /**
      * @param string $pathname
@@ -45,7 +45,7 @@ class ImageFileInfo {
      * @param int $last_modified
      * @param int $orientation
      */
-    public function __construct($pathname, $width, $height, $imagetype, $last_modified = 0, $orientation = 1)
+    public function __construct($pathname, $width, $height, $imagetype, $last_modified = 0, $orientation = 0)
     {
         $this->pathname = $pathname;
         $this->fileinfo = new \SplFileInfo($this->pathname);
@@ -56,6 +56,7 @@ class ImageFileInfo {
         $this->height = $height;
         $this->imagetype = $imagetype;
         $this->mimetype = image_type_to_mime_type($imagetype);
+        $this->orientation = $orientation;
     }
 
     static public function createFromFile($pathname)
@@ -68,7 +69,12 @@ class ImageFileInfo {
         $height = $ii[1];
         $imagetype = $ii[2];
         $last_modified = filemtime($pathname);
-        $orientation = (@exif_read_data($pathname)['Orientation'] ?: 1);
+        $exif = @exif_read_data($pathname);
+        if (isset($exif['Orientation'])) {
+            $orientation = $exif['Orientation'];
+        } else {
+            $orientation = 0;
+        }
         return new static($pathname, $width, $height, $imagetype, $last_modified, $orientation);
     }
 
