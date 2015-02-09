@@ -1,9 +1,6 @@
 <?php
 namespace Wa72\AdaptImage;
 
-use PHPExif\Exif;
-use PHPExif\Reader;
-
 /**
  * Class ImageFileInfo represents information about an image file
  *
@@ -39,11 +36,6 @@ class ImageFileInfo {
     protected $fileinfo;
 
     protected $orientation = 1;
-
-    /**
-     * @var Exif
-     */
-    private $exif_data;
 
     /**
      * @param string $pathname
@@ -164,19 +156,4 @@ class ImageFileInfo {
         return $this->orientation;
     }
 
-
-
-    /**
-     * Return IPTC data
-     *
-     * @return \PHPExif\Exif
-     */
-    public function getExifData()
-    {
-        if (!($this->exif_data instanceof Exif)) {
-            $reader = Reader::factory(Reader::TYPE_NATIVE);
-            $this->exif_data = $reader->getExifFromFile($this->pathname);
-        }
-        return $this->exif_data;
-    }
 }
