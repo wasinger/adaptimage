@@ -15,23 +15,29 @@ use Imagine\Image\Point;
  * @package Wa72\AdaptImage
  */
 class ThumbnailGenerator {
-    /** @var  CachingImageResizer */
+    /** @var  ImageResizer */
     protected $resizer;
 
     /**
      * @param ImagineInterface $imagine
-     * @param string $cache_dir     The base directory where the resized images should be cached.
-     * @param int $width            The width of the thumbnail
-     * @param int $height           The height of the thumbnail
-     * @param string $mode          One of ImageInterface::THUMBNAIL_INSET or ImageInterface::THUMBNAIL_OUTBOUND
-     * @param FilterInterface[] $filters    Additional Filters to apply, e.g. for sharpening
+     * @param OutputPathNamerInterface $output_path_namer
+     * @param int $width The width of the thumbnail
+     * @param int $height The height of the thumbnail
+     * @param string $mode One of ImageInterface::THUMBNAIL_INSET or ImageInterface::THUMBNAIL_OUTBOUND
+     * @param FilterInterface[] $filters Additional Filters to apply, e.g. for sharpening
      */
-    public function __construct(ImagineInterface $imagine, $cache_dir, $width, $height, $mode = ImageInterface::THUMBNAIL_INSET, $filters = array())
+    public function __construct(
+        ImagineInterface $imagine,
+        OutputPathNamerInterface $output_path_namer,
+        $width,
+        $height,
+        $mode = ImageInterface::THUMBNAIL_INSET,
+        $filters = array())
     {
         $mode = ($mode == ImageInterface::THUMBNAIL_INSET ? ImageResizeDefinition::MODE_MAX : ImageResizeDefinition::MODE_CROP);
         $ird = new ImageResizeDefinition($width, $height, $mode, false, $filters);
         $ird->addFilter(new Strip());
-        $this->resizer = new CachingImageResizer($imagine, $ird, $cache_dir);
+        $this->resizer = new ImageResizer($imagine, $ird, $output_path_namer);
     }
 
     /**

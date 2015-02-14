@@ -13,9 +13,10 @@ use Wa72\AdaptImage\ImagineFilter\ResizingFilterInterface;
  *
  * @package Wa72\AdaptImage
  */
-class CachingImageResizer {
+class ImageResizer {
+    /** @var OutputPathNamerInterface  */
+    protected $output_path_namer;
 
-    protected $cache_dir;
     /**
      * @var ImagineInterface
      */
@@ -27,21 +28,19 @@ class CachingImageResizer {
     protected $image_resize_definition;
 
     /**
-     * @var string
-     */
-    protected $transformation_hash;
-
-    /**
      * @param ImagineInterface $imagine
      * @param ImageResizeDefinition $image_resize_definition
-     * @param string $cache_dir
+     * @param OutputPathNamerInterface $output_path_namer
      */
-    public function __construct(ImagineInterface $imagine, ImageResizeDefinition $image_resize_definition, $cache_dir)
+    public function __construct(
+        ImagineInterface $imagine,
+        ImageResizeDefinition $image_resize_definition,
+        OutputPathNamerInterface $output_path_namer
+    )
     {
         $this->imagine = $imagine;
-        $this->cache_dir = $cache_dir;
+        $this->output_path_namer = $output_path_namer;
         $this->image_resize_definition = $image_resize_definition;
-        $this->transformation_hash = md5(serialize($image_resize_definition->getTransformation()->getFilters()));
     }
 
     /**
@@ -58,10 +57,6 @@ class CachingImageResizer {
      */
     public function resize(ImageFileInfo $image, $really_do_it = false, $pre_transformation = null)
     {
-        // TODO: calculate new image type
-        $imagetype = $image->getImagetype();
-        $extension = image_type_to_extension($imagetype, false);
-
         if ($image->getOrientation() != 1) {
             if ($pre_transformation == null) {
                 $pre_transformation = new Transformation($this->imagine);
@@ -69,17 +64,7 @@ class CachingImageResizer {
             $pre_transformation->add(new FixOrientation($image->getOrientation()));
         }
 
-        if ($pre_transformation instanceof Transformation) {
-            $additional_transformation_hash = md5(serialize($pre_transformation->getFilters()));
-            $cachename = md5($image->getPathname() . $additional_transformation_hash) . '.' . $extension;
-        } else {
-            $cachename = md5($image->getPathname()) . '.' . $extension;
-        }
-
-        // calculate cache path
-        $cachepath = $this->cache_dir
-            . DIRECTORY_SEPARATOR . $this->transformation_hash
-            . DIRECTORY_SEPARATOR . $cachename;
+        $cachepath = $this->output_path_namer->getOutputPathname($image, $this->image_resize_definition, $pre_transformation);
 
         // if cached file already exists just return it
         if (file_exists($cachepath) && filemtime($cachepath) > $image->getFilemtime()) {
@@ -107,7 +92,7 @@ class CachingImageResizer {
                     $size = $filter->calculateSize($size);
                 }
             }
-            return new ImageFileInfo($cachepath, $size->getWidth(), $size->getHeight(), $imagetype, 0);
+            return new ImageFileInfo($cachepath, $size->getWidth(), $size->getHeight(), $image->getImagetype(), 0);
         }
 
         $count = 0;

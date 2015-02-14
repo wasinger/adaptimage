@@ -15,21 +15,21 @@ class AdaptiveImageResizer
     /** @var  ImageResizeDefinition[] */
     protected $image_resize_definitions;
 
-    /** @var string */
-    protected $cache_dir;
+    /** @var OutputPathNamerInterface */
+    protected $output_path_namer;
 
     /** @var ImagineInterface */
     protected $imagine;
 
     /**
      * @param ImagineInterface $imagine
-     * @param string $cache_dir    The base directory where the resized images should be cached.
+     * @param OutputPathNamerInterface $output_path_namer
      * @param ImageResizeDefinition[] $image_resize_definitions The predefined image sizes to which images may be scaled
      */
-    public function __construct(ImagineInterface $imagine, $cache_dir, $image_resize_definitions = array())
+    public function __construct(ImagineInterface $imagine, OutputPathNamerInterface $output_path_namer, $image_resize_definitions = array())
     {
         $this->imagine = $imagine;
-        $this->cache_dir = $cache_dir;
+        $this->output_path_namer = $output_path_namer;
         foreach ($image_resize_definitions as $ird) {
             /** @var ImageResizeDefinition $ird */
             $this->image_resize_definitions[$ird->getWidth()] = $ird;
@@ -107,7 +107,7 @@ class AdaptiveImageResizer
         if ($ird === null) {
             throw new \Exception('No ImageResizeDefinitions available');
         }
-        $resizer = new CachingImageResizer($this->imagine, $ird, $this->cache_dir);
+        $resizer = new ImageResizer($this->imagine, $ird, $this->output_path_namer);
         return $resizer->resize($image, $really_do_it);
     }
 
