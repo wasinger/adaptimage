@@ -15,8 +15,8 @@ use Imagine\Image\Point;
  * @package Wa72\AdaptImage
  */
 class ThumbnailGenerator {
-    /** @var  CachingImageTransformer */
-    protected $transformer;
+    /** @var  CachingImageResizer */
+    protected $resizer;
 
     /**
      * @param ImagineInterface $imagine
@@ -30,9 +30,8 @@ class ThumbnailGenerator {
     {
         $mode = ($mode == ImageInterface::THUMBNAIL_INSET ? ImageResizeDefinition::MODE_MAX : ImageResizeDefinition::MODE_CROP);
         $ird = new ImageResizeDefinition($width, $height, $mode, false, $filters);
-        $transformation = $ird->getTransformation();
-        $transformation->add(new Strip());
-        $this->transformer = new CachingImageTransformer($imagine, $transformation, $cache_dir);
+        $ird->addFilter(new Strip());
+        $this->resizer = new CachingImageResizer($imagine, $ird, $cache_dir);
     }
 
     /**
@@ -51,7 +50,7 @@ class ThumbnailGenerator {
      */
     public function thumbnail($really_do_it, ImageFileInfo $image)
     {
-        return $this->transformer->transform($image, $really_do_it);
+        return $this->resizer->resize($image, $really_do_it);
     }
 
 }

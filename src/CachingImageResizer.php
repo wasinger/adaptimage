@@ -13,7 +13,7 @@ use Wa72\AdaptImage\ImagineFilter\ResizingFilterInterface;
  *
  * @package Wa72\AdaptImage
  */
-class CachingImageTransformer {
+class CachingImageResizer {
 
     protected $cache_dir;
     /**
@@ -22,9 +22,9 @@ class CachingImageTransformer {
     protected $imagine;
 
     /**
-     * @var Transformation
+     * @var ImageResizeDefinition
      */
-    protected $transformation;
+    protected $image_resize_definition;
 
     /**
      * @var string
@@ -33,15 +33,15 @@ class CachingImageTransformer {
 
     /**
      * @param ImagineInterface $imagine
-     * @param Transformation $transformation
+     * @param ImageResizeDefinition $image_resize_definition
      * @param string $cache_dir
      */
-    public function __construct(ImagineInterface $imagine, Transformation $transformation, $cache_dir)
+    public function __construct(ImagineInterface $imagine, ImageResizeDefinition $image_resize_definition, $cache_dir)
     {
         $this->imagine = $imagine;
         $this->cache_dir = $cache_dir;
-        $this->transformation = $transformation;
-        $this->transformation_hash = md5(serialize($transformation->getFilters()));
+        $this->image_resize_definition = $image_resize_definition;
+        $this->transformation_hash = md5(serialize($image_resize_definition->getTransformation()->getFilters()));
     }
 
     /**
@@ -56,7 +56,7 @@ class CachingImageTransformer {
      * @return ImageFileInfo|static
      * @throws \Exception
      */
-    public function transform(ImageFileInfo $image, $really_do_it = false, $pre_transformation = null)
+    public function resize(ImageFileInfo $image, $really_do_it = false, $pre_transformation = null)
     {
         // TODO: calculate new image type
         $imagetype = $image->getImagetype();
@@ -91,11 +91,11 @@ class CachingImageTransformer {
             foreach ($pre_transformation->getFilters() as $filter) {
                 $transformation->add($filter);
             }
-            foreach ($this->transformation->getFilters() as $filter) {
+            foreach ($this->image_resize_definition->getTransformation()->getFilters() as $filter) {
                 $transformation->add($filter);
             }
         } else {
-            $transformation = $this->transformation;
+            $transformation = $this->image_resize_definition->getTransformation();
         }
 
         if (!$really_do_it) {

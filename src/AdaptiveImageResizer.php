@@ -107,8 +107,8 @@ class AdaptiveImageResizer
         if ($ird === null) {
             throw new \Exception('No ImageResizeDefinitions available');
         }
-        $transformer = new CachingImageTransformer($this->imagine, $ird->getTransformation(), $this->cache_dir);
-        return $transformer->transform($image, $really_do_it);
+        $resizer = new CachingImageResizer($this->imagine, $ird, $this->cache_dir);
+        return $resizer->resize($image, $really_do_it);
     }
 
 }
