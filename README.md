@@ -4,7 +4,8 @@ AdaptImage
 A small PHP library that lets you easily resize images to pre-defined sizes (useful for adaptive images), 
 generate thumbnails, and cache them.
 
-Built on top of the [Imagine](https://github.com/avalanche123/Imagine) library, it is designed to be framework agnostic, customizable, and extendable.
+Built on top of the [Imagine](https://github.com/avalanche123/Imagine) library, it is designed to be framework agnostic,
+object orientated, customizable, and extendable.
 
 __Features__:
 
@@ -18,7 +19,10 @@ __Features__:
 -   Adaptive images: acquire an image for an arbitrary screen width and get a resized image with the nearest defined size.
     You can select whether you want the next smaller images (that completely fits into the given width) or the next
     bigger image (that can be downscaled by the browser to fill the screen).
--   Thumbnails: supports "inset" and "outbound" (crop) modes, supports custom crops for single images. 
+-   Thumbnails: supports "inset" and "outbound" (crop) modes, supports custom crops for single images.
+-   Ability to simulate resize operations, i.e. calculating the resulting width and height of an image without actually
+    transforming it. Useful for generating lots of thumbnail `<img>` tags in an html page with width and height
+    attributes.
 -   When generating resized images lockfiles are used to prevent race conditions.  
 
 Installation
@@ -37,27 +41,31 @@ filters, such as for sharpening or adding watermarks.
 
 ```php
 use Wa72\AdaptImage\ImageResizeDefinition;
+use Wa72\AdaptImage\ImagineFilter\Sharpen;
 
 $sizes = array(
     new ImageResizeDefinition(1600, 1200),
     new ImageResizeDefinition(1280, 1024),
     new ImageResizeDefinition(768, 576),
-    new ImageResizeDefinition(1024, 768)
+    new ImageResizeDefinition(1024, 768, array(new Sharpen())) // example with additional sharpen filter
 );
 ```
 
-Next, we need an object implementing `OutputPathNamerInterface` that is able to compute the path and filename where a
-resized image should be stored (depending on the input file and the applied transformations). `OutputPathNamerBasedir` 
-is a class that generates output filenames that are all placed in per-transformation subdirectories within a common 
-base directory.
+Next, we need an object implementing [`OutputPathNamerInterface`](src/OutputPathNamerInterface.php) that is able to 
+compute the path and filename where a resized image should be stored (depending on the input file and the applied 
+transformations).
+[`OutputPathNamerBasedir`](src/OutputPathNamerBasedir.php) is a class that generates output filenames that are all 
+placed in per-transformation subdirectories within a common base directory.
 
 ```php
 use Wa72\AdaptImage\OutputPathNamerBasedir;
 
-$output_path_namer = new OutputPathNamerBasedir(__DIR__  . '/cache');
+$cachedir = __DIR__  . '/cache';
+$output_path_namer = new OutputPathNamerBasedir($cachedir);
 ```
 
-Next, we are ready to define an `AdaptiveImageResizer` and a `ThumbnailGenerator` that will do the work for us:
+Now we are ready to define an [`AdaptiveImageResizer`](src/AdaptiveImageResizer.php) and a 
+[`ThumbnailGenerator`](src/ThumbnailGenerator.php) that will do the work for us:
 
 ```php
 use Wa72\AdaptImage\AdaptiveImageResizer;
@@ -99,7 +107,9 @@ $response->prepare($request);
 return $response;
 ```
 
+For more documentation, please see the source code, it should be well commented.
 
 
+© 2015 Christoph Singer. Licensed under the MIT license.
 
 
