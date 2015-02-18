@@ -4,7 +4,22 @@ AdaptImage
 A small PHP library that lets you easily resize images to pre-defined sizes (useful for adaptive images), 
 generate thumbnails, and cache them.
 
-Built on top of the Imagine library, it is designed to be framework agnostic, customizable, and extendable.
+Built on top of the [Imagine](https://github.com/avalanche123/Imagine) library, it is designed to be framework agnostic, customizable, and extendable.
+
+__Features__:
+
+-   Allows to define multiple allowed image sizes. Each defined image size can be given additional
+    [Imagine filters](http://imagine.readthedocs.org/en/latest/_static/API/Imagine/Filter/FilterInterface.html), 
+    e.g. for sharpening.
+-   The resized images are written to cache files whose names are computed from the input image and the applied
+    transformation. You can easily write your own naming roules by implementing
+    [`OutputPathNamerInterface`](src/OutputPathNamerInterface.php). The next time a resized image is required the
+    cached file is returned. The cached file will be regenerated when the original file changes.
+-   Adaptive images: acquire an image for an arbitrary screen width and get a resized image with the nearest defined size.
+    You can select whether you want the next smaller images (that completely fits into the given width) or the next
+    bigger image (that can be downscaled by the browser to fill the screen).
+-   Thumbnails: supports "inset" and "outbound" (crop) modes, supports custom crops for single images. 
+-   When generating resized images lockfiles are used to prevent race conditions.  
 
 Installation
 ------------

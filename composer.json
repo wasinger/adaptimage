@@ -1,6 +1,6 @@
 {
     "name":"wa72/adaptimage",
-    "description":"Easily resize images to pre-defined sizes, generate thumbnails, and cache them",
+    "description":"Resize adaptive images to pre-defined sizes, generate thumbnails, and cache them",
     "type":"library",
     "license":"MIT",
     "authors":[
