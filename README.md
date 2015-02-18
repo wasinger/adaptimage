@@ -1,6 +1,9 @@
 AdaptImage
 ==========
 
+[![Build Status](https://travis-ci.org/wasinger/adaptimage.svg?branch=master)](https://travis-ci.org/wasinger/adaptimage)
+[![Downloads from Packagist](http://img.shields.io/packagist/dt/wa72/adaptimage.svg)](https://packagist.org/packages/wa72/adaptimage)
+
 A small PHP library that lets you easily resize images to pre-defined sizes (useful for adaptive images), 
 generate thumbnails, and cache them.
 
