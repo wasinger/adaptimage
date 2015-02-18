@@ -33,6 +33,25 @@ class ImageResizerTest extends \PHPUnit_Framework_TestCase
         $resized_image = $resizer->resize($image, false);
         $this->assertEquals(100, $resized_image->getWidth());
         $this->assertEquals(300, $resized_image->getHeight());
+
+        $image = new ImageFileInfo('tmp.jpg', 200, 600, IMAGETYPE_JPEG);
+        $resized_image = $resizer->resize($image, false);
+        $this->assertEquals(100, $resized_image->getWidth());
+        $this->assertEquals(300, $resized_image->getHeight());
+
+        $image = new ImageFileInfo('tmp.jpg', 80, 80, IMAGETYPE_JPEG);
+        $resized_image = $resizer->resize($image, false);
+        $this->assertEquals(80, $resized_image->getWidth());
+        $this->assertEquals(80, $resized_image->getHeight());
+
+        // Test with upscaling
+        $ird = new ImageResizeDefinition(300, 300, ImageResizeDefinition::MODE_MAX, true);
+        $resizer = new ImageResizer($this->imagine, $ird, $this->output_path_namer);
+
+        $image = new ImageFileInfo('tmp.jpg', 80, 80, IMAGETYPE_JPEG);
+        $resized_image = $resizer->resize($image, false);
+        $this->assertEquals(300, $resized_image->getWidth());
+        $this->assertEquals(300, $resized_image->getHeight());
     }
 
 }
