@@ -58,16 +58,17 @@ class ImageResizeDefinition {
 
     /**
      * @param int $width The width of the new size
-     * @param int $height The height of the new size
+     * @param int $height The height of the new size. Default: same value as width
      * @param string $mode one of the ImageResizeDefinition::MODE_* constants, i.e. 'max', 'min', or 'crop'
      * @param bool $upscale Should the image be upscaled if it is smaller than the new size?
      * @param FilterInterface[] $filters Additional Filters to apply, e.g. for sharpening
      * @param string|null $scale_algorithm One of the ImageInterface::FILTER_* constants, defaults to ProportionalResize::$default_scale_algorithm
      */
-    public function __construct($width, $height, $mode = ImageResizeDefinition::MODE_MAX, $upscale = false, $filters = array(), $scale_algorithm = null)
+    public function __construct($width, $height = 0, $mode = ImageResizeDefinition::MODE_MAX, $upscale = false, $filters = array(), $scale_algorithm = null)
     {
+        $height = $height ?: $width;
         $this->width = $width;
-        $this->height = $height;
+        $this->height =$height;
         $this->mode = $mode;
         $this->upscale = $upscale;
         $this->transformation = new Transformation();
