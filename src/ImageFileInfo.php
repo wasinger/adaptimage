@@ -7,6 +7,8 @@ namespace Wa72\AdaptImage;
  * @package Wa72\AdaptImage
  */
 class ImageFileInfo {
+    static $allowed_image_types = [IMAGETYPE_JPEG, IMAGETYPE_PNG, IMAGETYPE_GIF];
+
     protected $pathname;
     protected $filename;
     /**
@@ -68,6 +70,9 @@ class ImageFileInfo {
         $width = $ii[0];
         $height = $ii[1];
         $imagetype = $ii[2];
+        if (!in_array($imagetype, self::$allowed_image_types)) {
+            throw new \InvalidArgumentException(sprintf('File %s is not an allowed image type', $pathname));
+        }
         $last_modified = filemtime($pathname);
         $exif = @exif_read_data($pathname);
         if (isset($exif['Orientation'])) {
