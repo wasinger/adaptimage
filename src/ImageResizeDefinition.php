@@ -58,7 +58,9 @@ class ImageResizeDefinition {
 
     /**
      * @param int $width The width of the new size
-     * @param int $height The height of the new size. Default: same value as width
+     * @param int $height   The height of the new size.
+     *                      If set to 0 (default), it will be set to the same value as width.
+     *                      If set to INF, it will not be restricted.
      * @param string $mode one of the ImageResizeDefinition::MODE_* constants, i.e. 'max', 'min', or 'crop'
      * @param bool $upscale Should the image be upscaled if it is smaller than the new size?
      * @param FilterInterface[] $filters Additional Filters to apply, e.g. for sharpening
@@ -66,14 +68,21 @@ class ImageResizeDefinition {
      */
     public function __construct($width, $height = 0, $mode = ImageResizeDefinition::MODE_MAX, $upscale = false, $filters = array(), $scale_algorithm = null)
     {
-        $height = $height ?: $width;
+        $height = $height ?: $width; // if height is 0 (or not set), it defaults to $width
+        if ($mode != ImageResizeDefinition::MODE_MAX && $height === INF) {
+            throw new \InvalidArgumentException('Unlimited height is only allowed in "max" mode');
+        }
+        if ($width < 1 || $height < 1) {
+            throw new \InvalidArgumentException('width and height must be greater than 0');
+        }
         $this->width = $width;
         $this->height =$height;
         $this->mode = $mode;
         $this->upscale = $upscale;
         $this->transformation = new Transformation();
         $this->resizefilter = new ProportionalResize(
-            new Box($width, $height),
+            $width,
+            $height,
             ($mode == ImageResizeDefinition::MODE_MIN || $mode == ImageResizeDefinition::MODE_CROP),
             $upscale,
             $scale_algorithm
