@@ -35,7 +35,7 @@ class ThumbnailGenerator {
         $filters = array())
     {
         $mode = ($mode == ImageInterface::THUMBNAIL_INSET ? ImageResizeDefinition::MODE_MAX : ImageResizeDefinition::MODE_CROP);
-        $ird = new ImageResizeDefinition($width, $height, $mode, false, $filters);
+        $ird = new ImageResizeDefinition($width, $height, $mode, false, null, $filters);
         $ird->addAdditionalFilter(new Strip());
         $this->resizer = new ImageResizer($imagine, $ird, $output_path_namer);
     }
