@@ -9,6 +9,7 @@ use Wa72\AdaptImage\ImagineFilter\FilterChain;
 use Wa72\AdaptImage\ImagineFilter\FixOrientation;
 use Wa72\AdaptImage\ImagineFilter\ResizingFilterInterface;
 use Wa72\AdaptImage\Output\OutputPathNamerInterface;
+use Wa72\AdaptImage\Output\OutputTypeOptionsInterface;
 
 /**
  * Class ImageTransformer applies a Transformation to an image and caches the resulting image.
@@ -66,7 +67,14 @@ class ImageResizer {
             $pre_transformation->add(new FixOrientation($image->getOrientation()));
         }
 
-        $cachepath = $this->output_path_namer->getOutputPathname($image, $this->image_resize_definition, $pre_transformation);
+        $outputTypeOptions = $this->image_resize_definition->getOutputTypeMap()->getOutputTypeOptions($image->getImagetype());
+
+        $cachepath = $this->output_path_namer->getOutputPathname(
+            $image,
+            $this->image_resize_definition,
+            $outputTypeOptions->getExtension(false),
+            $pre_transformation
+        );
 
         // if cached file already exists just return it
         if (file_exists($cachepath) && filemtime($cachepath) > $image->getFilemtime()) {
@@ -86,11 +94,11 @@ class ImageResizer {
         if (!$really_do_it) {
             // calculate size after transformation
             $size = $transformation->calculateSize(new Box($image->getWidth(), $image->getHeight()));
-            return new ImageFileInfo($cachepath, $size->getWidth(), $size->getHeight(), $image->getImagetype(), 0);
+            return new ImageFileInfo($cachepath, $size->getWidth(), $size->getHeight(), $outputTypeOptions->getType(), 0);
         }
 
         $count = 0;
-        while ($this->_doTransform($image, $transformation, $post_transformation, $cachepath) === false) {
+        while ($this->_doTransform($image, $transformation, $outputTypeOptions, $post_transformation, $cachepath) === false) {
             if ($count > 4) {
                 throw new \Exception('Could not generate Thumbnail');
             }
@@ -100,7 +108,7 @@ class ImageResizer {
         return ImageFileInfo::createFromFile($cachepath);
     }
 
-    private function _doTransform(ImageFileInfo $image, FilterChain $transformation, $post_transformation, $cache_path)
+    private function _doTransform(ImageFileInfo $image, FilterChain $transformation, OutputTypeOptionsInterface $outputTypeOptions, $post_transformation, $cache_path)
     {
         $lockfile = sys_get_temp_dir() . DIRECTORY_SEPARATOR . md5($cache_path) . '.lock';
         $lockfp = fopen($lockfile, 'w');
@@ -112,8 +120,8 @@ class ImageResizer {
                 }
                 $oldsize = new Box($image->getWidth(), $image->getHeight());
                 $newsize = $transformation->calculateSize($oldsize);
-                if ($oldsize == $newsize) {
-                    // Shortcut for images that are not resized: just copy them
+                if ($oldsize == $newsize && $image->getExtension() == $outputTypeOptions->getExtension()) {
+                    // Shortcut for images that are not resized or converted: just copy them
                     // TODO: do we really always want this?
                     copy($image->getPathname(), $cache_path);
                 } else {
@@ -121,7 +129,10 @@ class ImageResizer {
                     if ($post_transformation instanceof FilterChain) {
                         $post_transformation->apply($ii);
                     }
-                    $ii->save($cache_path);
+                    if ($outputTypeOptions->getFilters() instanceof FilterChain) {
+                        $outputTypeOptions->getFilters()->apply($ii);
+                    }
+                    $ii->save($cache_path, $outputTypeOptions->getSaveOptions());
                 }
             }
             unlink($lockfile);

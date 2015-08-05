@@ -8,6 +8,7 @@ use Imagine\Image\Point;
 use Wa72\AdaptImage\ImagineFilter\CropCenter;
 use Wa72\AdaptImage\ImagineFilter\FilterChain;
 use Wa72\AdaptImage\ImagineFilter\ProportionalResize;
+use Wa72\AdaptImage\Output\OutputTypeMap;
 
 /**
  * Class ImageResizeDefinition
@@ -59,6 +60,9 @@ class ImageResizeDefinition {
      */
     protected $resizefilter;
 
+    /** @var  OutputTypeMap */
+    protected $outputTypeMap;
+
     /**
      * @param int $width The width of the new size
      * @param int $height   The height of the new size.
@@ -100,6 +104,7 @@ class ImageResizeDefinition {
                 $this->additional_transformation->add($filter);
             }
         }
+        $this->outputTypeMap = new OutputTypeMap();
     }
 
     /**
@@ -156,5 +161,23 @@ class ImageResizeDefinition {
     public function getHeight()
     {
         return $this->height;
+    }
+
+    /**
+     * @return OutputTypeMap
+     */
+    public function getOutputTypeMap()
+    {
+        return $this->outputTypeMap;
+    }
+
+    /**
+     * @param OutputTypeMap $outputTypeMap
+     * @return ImageResizeDefinition
+     */
+    public function setOutputTypeMap(OutputTypeMap $outputTypeMap)
+    {
+        $this->outputTypeMap = $outputTypeMap;
+        return $this;
     }
 }

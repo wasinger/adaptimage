@@ -25,6 +25,7 @@ class OutputTypeMap
      * Get OutputTypeOptions for given input type
      *
      * @param int $input_type One of the IMAGETYPE_XX constants
+     * @return OutputTypeOptionsInterface
      */
     public function getOutputTypeOptions($input_type)
     {
