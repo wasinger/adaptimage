@@ -52,6 +52,7 @@ class OutputTypeOptionsPng implements OutputTypeOptionsInterface
     public function getSaveOptions()
     {
         return [
+            'format' => $this->getExtension(false),
             'png_compression_level' => $this->compression_level,
             'png_compression_filter' => $this->compression_filter
         ];

@@ -43,7 +43,9 @@ class OutputTypeOptionsGif implements OutputTypeOptionsInterface
      */
     public function getSaveOptions()
     {
-        return [];
+        return [
+            'format' => $this->getExtension(false)
+        ];
     }
 
 }

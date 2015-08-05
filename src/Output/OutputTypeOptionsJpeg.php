@@ -2,7 +2,9 @@
 namespace Wa72\AdaptImage\Output;
 
 
+use Imagine\Image\ImageInterface;
 use Wa72\AdaptImage\ImagineFilter\FilterChain;
+use Wa72\AdaptImage\ImagineFilter\Interlace;
 
 class OutputTypeOptionsJpeg implements OutputTypeOptionsInterface
 {
@@ -45,7 +47,13 @@ class OutputTypeOptionsJpeg implements OutputTypeOptionsInterface
      */
     public function getFilters()
     {
-        return null;
+        if ($this->progressive) {
+            $fc = new FilterChain();
+            $fc->add(new Interlace(ImageInterface::INTERLACE_LINE));
+            return $fc;
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -56,6 +64,7 @@ class OutputTypeOptionsJpeg implements OutputTypeOptionsInterface
     public function getSaveOptions()
     {
         return [
+            'format' => $this->getExtension(false),
             'jpeg_quality' => $this->quality
         ];
     }
