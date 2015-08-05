@@ -6,6 +6,7 @@ use Imagine\Image\Box;
 use Imagine\Image\BoxInterface;
 use Imagine\Image\Point;
 use Wa72\AdaptImage\ImagineFilter\CropCenter;
+use Wa72\AdaptImage\ImagineFilter\FilterChain;
 use Wa72\AdaptImage\ImagineFilter\ProportionalResize;
 
 /**

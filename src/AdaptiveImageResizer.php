@@ -2,6 +2,7 @@
 namespace Wa72\AdaptImage;
 
 use Imagine\Image\ImagineInterface;
+use Wa72\AdaptImage\Output\OutputPathNamerInterface;
 
 /**
  * Class AdaptiveImageResizer

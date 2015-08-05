@@ -1,13 +1,14 @@
 <?php
-namespace Wa72\AdaptImage;
-use Imagine\Filter\Transformation;
+namespace Wa72\AdaptImage\Output;
+
+use Wa72\AdaptImage\ImageFileInfo;
+use Wa72\AdaptImage\ImageResizeDefinition;
+use Wa72\AdaptImage\ImagineFilter\FilterChain;
 
 /**
  * Class OutputPathNamerBasedir is an OutputPathNamerInterface instance that stores the resulting files
  * in subdirectories of one common basedir.
  *
- *
- * @package Wa72\AdaptImage
  */
 class OutputPathNamerBasedir implements OutputPathNamerInterface
 {

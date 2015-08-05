@@ -5,8 +5,10 @@ namespace Wa72\AdaptImage;
 use Imagine\Filter\Transformation;
 use Imagine\Image\Box;
 use Imagine\Image\ImagineInterface;
+use Wa72\AdaptImage\ImagineFilter\FilterChain;
 use Wa72\AdaptImage\ImagineFilter\FixOrientation;
 use Wa72\AdaptImage\ImagineFilter\ResizingFilterInterface;
+use Wa72\AdaptImage\Output\OutputPathNamerInterface;
 
 /**
  * Class ImageTransformer applies a Transformation to an image and caches the resulting image.

@@ -1,5 +1,5 @@
 <?php
-namespace Wa72\AdaptImage;
+namespace Wa72\AdaptImage\ImagineFilter;
 
 use Imagine\Exception\InvalidArgumentException;
 use Imagine\Filter\ImagineAware;
@@ -7,7 +7,6 @@ use Imagine\Image\ImageInterface;
 use Imagine\Image\ImagineInterface;
 use Imagine\Image\BoxInterface;
 use Imagine\Filter\FilterInterface;
-use Wa72\AdaptImage\ImagineFilter\ResizingFilterInterface;
 
 /**
  * Class FilterChain is a chain of Imagine Filters that can be applied to an image in a specified order.

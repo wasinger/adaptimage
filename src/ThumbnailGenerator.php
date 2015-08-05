@@ -6,6 +6,7 @@ use Imagine\Filter\FilterInterface;
 use Imagine\Image\ImageInterface;
 use Imagine\Image\ImagineInterface;
 use Imagine\Image\Point;
+use Wa72\AdaptImage\Output\OutputPathNamerInterface;
 
 /**
  * Class ThumbnailGenerator

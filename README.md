@@ -17,7 +17,7 @@ __Features__:
     e.g. for sharpening.
 -   The resized images are written to cache files whose names are computed from the input image and the applied
     transformation. You can easily write your own naming roules by implementing
-    [`OutputPathNamerInterface`](src/OutputPathNamerInterface.php). The next time a resized image is required the
+    [`OutputPathNamerInterface`](src/Output/OutputPathNamerInterface.php). The next time a resized image is required the
     cached file is returned. The cached file will be regenerated when the original file changes.
 -   Adaptive images: acquire an image for an arbitrary screen width and get a resized image with the nearest defined size.
     You can select whether you want the next smaller images (that completely fits into the given width) or the next
@@ -54,14 +54,14 @@ $sizes = array(
 );
 ```
 
-Next, we need an object implementing [`OutputPathNamerInterface`](src/OutputPathNamerInterface.php) that is able to 
+Next, we need an object implementing [`OutputPathNamerInterface`](src/Output/OutputPathNamerInterface.php) that is able to
 compute the path and filename where a resized image should be stored (depending on the input file and the applied 
 transformations).
-[`OutputPathNamerBasedir`](src/OutputPathNamerBasedir.php) is a class that generates output filenames that are all 
+[`OutputPathNamerBasedir`](src/Output/OutputPathNamerBasedir.php) is a class that generates output filenames that are all
 placed in per-transformation subdirectories within a common base directory.
 
 ```php
-use Wa72\AdaptImage\OutputPathNamerBasedir;
+use Wa72\AdaptImage\Output\OutputPathNamerBasedir;
 
 $cachedir = __DIR__  . '/cache';
 $output_path_namer = new OutputPathNamerBasedir($cachedir);

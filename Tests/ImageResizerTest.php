@@ -5,7 +5,7 @@ use Imagine\Gd\Imagine;
 use Wa72\AdaptImage\ImageFileInfo;
 use Wa72\AdaptImage\ImageResizeDefinition;
 use Wa72\AdaptImage\ImageResizer;
-use Wa72\AdaptImage\OutputPathNamerBasedir;
+use Wa72\AdaptImage\Output\OutputPathNamerBasedir;
 
 class ImageResizerTest extends \PHPUnit_Framework_TestCase
 {

@@ -1,12 +1,14 @@
 <?php
-namespace Wa72\AdaptImage;
-use Imagine\Filter\Transformation;
+namespace Wa72\AdaptImage\Output;
+
+use Wa72\AdaptImage\ImageFileInfo;
+use Wa72\AdaptImage\ImageResizeDefinition;
+use Wa72\AdaptImage\ImagineFilter\FilterChain;
 
 /**
  * Interface OutputPathNamerInterface computes the output path and filename for a given original image file
  * and an ImageResizeDefinition object
  *
- * @package Wa72\AdaptImage
  */
 interface OutputPathNamerInterface {
     /**
