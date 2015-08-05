@@ -129,7 +129,12 @@ class FilterChain implements FilterInterface, ResizingFilterInterface
      */
     public function prepend(FilterChain $chain)
     {
-        $priority = min(array_keys($this->filters)) - 1;
+        $priorities = array_keys($this->filters);
+        if (count($priorities)) {
+            $priority = min(array_keys($this->filters)) - 1;
+        } else {
+            $priority = 0;
+        }
         $filters = $chain->getFilters();
         foreach ($filters as $filter) {
             $this->add($filter, $priority);
@@ -145,7 +150,12 @@ class FilterChain implements FilterInterface, ResizingFilterInterface
      */
     public function append(FilterChain $chain)
     {
-        $priority = max(array_keys($this->filters)) + 1;
+        $priorities = array_keys($this->filters);
+        if (count($priorities)) {
+            $priority = max(array_keys($this->filters)) + 1;
+        } else {
+            $priority = 0;
+        }
         $filters = $chain->getFilters();
         foreach ($filters as $filter) {
             $this->add($filter, $priority);

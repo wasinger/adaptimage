@@ -45,7 +45,12 @@ class OutputPathNamerBasedir implements OutputPathNamerInterface
         $imagetype = $input_image->getImagetype();
         $extension = image_type_to_extension($imagetype, false);
 
-        if ($additional_transformation instanceof Transformation) {
+        if ($image_resize_definition->getAdditionalTransformation() instanceof FilterChain) {
+            $additional_transformation = ($additional_transformation instanceof FilterChain ? $additional_transformation : new FilterChain());
+            $additional_transformation->append($image_resize_definition->getAdditionalTransformation());
+        }
+
+        if ($additional_transformation instanceof FilterChain) {
             $additional_transformation_hash = md5(serialize($additional_transformation->getFilters()));
             $cachename = md5($input_image->getPathname() . $additional_transformation_hash) . '.' . $extension;
         } else {
