@@ -33,7 +33,7 @@ class OutputPathNamerBasedir implements OutputPathNamerInterface
     /**
      * @param ImageFileInfo $input_image
      * @param ImageResizeDefinition $image_resize_definition
-     * @param \Imagine\Filter\Transformation|null $additional_transformation
+     * @param FilterChain|null $additional_transformation
      * @return string The pathname of the output image file
      */
     public function getOutputPathname(
@@ -55,7 +55,7 @@ class OutputPathNamerBasedir implements OutputPathNamerInterface
         if (isset($this->filterhashes[$image_resize_definition])) {
             $transformation_hash = $this->filterhashes[$image_resize_definition];
         } else {
-            $transformation_hash = md5(serialize($image_resize_definition->getTransformation()->getFilters()));
+            $transformation_hash = md5(serialize($image_resize_definition->getResizeTransformation()->getFilters()));
             $this->filterhashes[$image_resize_definition] = $transformation_hash;
         }
 

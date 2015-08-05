@@ -12,7 +12,7 @@ interface OutputPathNamerInterface {
     /**
      * @param ImageFileInfo $input_image
      * @param ImageResizeDefinition $image_resize_definition
-     * @param Transformation|null $additional_transformation
+     * @param FilterChain|null $additional_transformation
      * @return string The pathname of the output image file
      */
     public function getOutputPathname(

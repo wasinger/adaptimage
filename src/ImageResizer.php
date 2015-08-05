@@ -49,8 +49,8 @@ class ImageResizer {
      *
      * @param ImageFileInfo $image
      * @param bool $really_do_it    If false, the image will not be really processed, but instead the resulting size is calculated
-     * @param Transformation|null $pre_transformation   Custom Transformation for this image
-     *                                                  that will be applied before $this->transformation
+     * @param FilterChain|null $pre_transformation   Custom Transformation for this image
+     *                                                  that will be applied before the resizing transformation
      *                                                  Used for image rotation and custom thumbnail crops
      * @return ImageFileInfo|static
      * @throws \Exception
@@ -59,7 +59,7 @@ class ImageResizer {
     {
         if ($image->getOrientation() != 1) {
             if ($pre_transformation == null) {
-                $pre_transformation = new Transformation($this->imagine);
+                $pre_transformation = new FilterChain($this->imagine);
             }
             $pre_transformation->add(new FixOrientation($image->getOrientation()));
         }
@@ -71,32 +71,24 @@ class ImageResizer {
             return ImageFileInfo::createFromFile($cachepath);
         }
 
-        if ($pre_transformation instanceof Transformation) {
-            $transformation = new Transformation($this->imagine);
-            foreach ($pre_transformation->getFilters() as $filter) {
-                $transformation->add($filter);
-            }
-            foreach ($this->image_resize_definition->getTransformation()->getFilters() as $filter) {
-                $transformation->add($filter);
-            }
+        if ($pre_transformation instanceof FilterChain) {
+            $transformation = new FilterChain($this->imagine);
+            $transformation->append($pre_transformation);
+            $transformation->append($this->image_resize_definition->getResizeTransformation());
         } else {
-            $transformation = $this->image_resize_definition->getTransformation();
+            $transformation = $this->image_resize_definition->getResizeTransformation();
         }
+
+        $post_transformation = $this->image_resize_definition->getAdditionalTransformation();
 
         if (!$really_do_it) {
             // calculate size after transformation
-            $size = new Box($image->getWidth(), $image->getHeight());
-            $filters = $transformation->getFilters();
-            foreach ($filters as $filter) {
-                if ($filter instanceof ResizingFilterInterface) {
-                    $size = $filter->calculateSize($size);
-                }
-            }
+            $size = $transformation->calculateSize(new Box($image->getWidth(), $image->getHeight()));
             return new ImageFileInfo($cachepath, $size->getWidth(), $size->getHeight(), $image->getImagetype(), 0);
         }
 
         $count = 0;
-        while ($this->_doTransform($image, $transformation, $cachepath) === false) {
+        while ($this->_doTransform($image, $transformation, $post_transformation, $cachepath) === false) {
             if ($count > 4) {
                 throw new \Exception('Could not generate Thumbnail');
             }
@@ -106,7 +98,7 @@ class ImageResizer {
         return ImageFileInfo::createFromFile($cachepath);
     }
 
-    private function _doTransform(ImageFileInfo $image, Transformation $transformation, $cache_path)
+    private function _doTransform(ImageFileInfo $image, FilterChain $transformation, $post_transformation, $cache_path)
     {
         $lockfile = sys_get_temp_dir() . DIRECTORY_SEPARATOR . md5($cache_path) . '.lock';
         $lockfp = fopen($lockfile, 'w');
@@ -116,7 +108,19 @@ class ImageResizer {
                 if (!file_exists($cachedir)) {
                     mkdir($cachedir, 0777, true);
                 }
-                $transformation->apply($this->imagine->open($image->getPathname()))->save($cache_path);
+                $oldsize = new Box($image->getWidth(), $image->getHeight());
+                $newsize = $transformation->calculateSize($oldsize);
+                if ($oldsize == $newsize) {
+                    // Shortcut for images that are not resized: just copy them
+                    // TODO: do we really always want this?
+                    copy($image->getPathname(), $cache_path);
+                } else {
+                    $ii = $transformation->apply($this->imagine->open($image->getPathname()));
+                    if ($post_transformation instanceof FilterChain) {
+                        $post_transformation->apply($ii);
+                    }
+                    $ii->save($cache_path);
+                }
             }
             unlink($lockfile);
             fclose($lockfp);

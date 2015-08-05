@@ -50,7 +50,7 @@ $sizes = array(
     new ImageResizeDefinition(1600, 1200),
     new ImageResizeDefinition(1280, 1024),
     new ImageResizeDefinition(768, 576),
-    new ImageResizeDefinition(1024, 768, array(new Sharpen())) // example with additional sharpen filter
+    new ImageResizeDefinition(1024, 768, ImageResizeDefinition::MODE_MAX, false, null, array(new Sharpen())) // example with additional sharpen filter
 );
 ```
 
