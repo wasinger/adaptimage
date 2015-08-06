@@ -85,10 +85,13 @@ class FilterChain implements FilterInterface, ResizingFilterInterface
     public function getFilters()
     {
         if (null === $this->sorted) {
-            ksort($this->filters);
-            $this->sorted = call_user_func_array('array_merge', $this->filters);
+            if (!count($this->filters)) {
+                $this->sorted = array();
+            } else {
+                ksort($this->filters);
+                $this->sorted = call_user_func_array('array_merge', $this->filters);
+            }
         }
-
         return $this->sorted;
     }
 
