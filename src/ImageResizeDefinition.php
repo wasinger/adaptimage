@@ -98,8 +98,8 @@ class ImageResizeDefinition {
         if ($mode == ImageResizeDefinition::MODE_CROP) {
             $this->resize_transformation->add(new CropCenter(new Box($width, $height)));
         }
+        $this->additional_transformation = new FilterChain();
         if (is_array($additional_filters)) {
-            $this->additional_transformation = new FilterChain();
             foreach ($additional_filters as $filter) {
                 $this->additional_transformation->add($filter);
             }
@@ -121,10 +121,24 @@ class ImageResizeDefinition {
     /**
      * @param FilterInterface $filter
      * @param int $priority
+     * @return $this
      */
     public function addAdditionalFilter(FilterInterface $filter, $priority = 0)
     {
         $this->additional_transformation->add($filter, $priority);
+        return $this;
+    }
+
+    /**
+     * Set the algorithm used for scaling
+     *
+     * @param $algorithm string One of the ImageInterface::FILTER_* constants
+     * @return $this
+     */
+    public function setScaleAlgorithm($algorithm)
+    {
+        $this->resizefilter->setScaleAlgorithm($algorithm);
+        return $this;
     }
 
     /**
@@ -179,5 +193,21 @@ class ImageResizeDefinition {
     {
         $this->outputTypeMap = $outputTypeMap;
         return $this;
+    }
+
+    /**
+     * Create an ImageResizeDefinition instance
+     *
+     * @param int $width The width of the new size
+     * @param int $height   The height of the new size.
+     *                      If set to 0 (default), it will be set to the same value as width.
+     *                      If set to INF, height will not be restricted.
+     * @param string $mode one of the ImageResizeDefinition::MODE_* constants, i.e. 'max', 'min', or 'crop'
+     * @param bool $upscale Should the image be upscaled if it is smaller than the new size?
+     * @return ImageResizeDefinition
+     */
+    static function create($width, $height = 0, $mode = ImageResizeDefinition::MODE_MAX, $upscale = false)
+    {
+        return new static($width, $height, $mode, $upscale);
     }
 }

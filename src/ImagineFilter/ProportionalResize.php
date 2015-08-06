@@ -105,4 +105,14 @@ class ProportionalResize implements FilterInterface, ResizingFilterInterface
         }
         return call_user_func(array($size, $method), $parameter);
     }
+
+    /**
+     * Set the algorithm used for scaling
+     *
+     * @param $algorithm string One of the ImageInterface::FILTER_* constants
+     */
+    public function setScaleAlgorithm($algorithm)
+    {
+        $this->filter = $algorithm;
+    }
 }
