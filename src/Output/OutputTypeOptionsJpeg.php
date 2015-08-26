@@ -49,7 +49,7 @@ class OutputTypeOptionsJpeg implements OutputTypeOptionsInterface
     {
         if ($this->progressive) {
             $fc = new FilterChain();
-            $fc->add(new Interlace(ImageInterface::INTERLACE_LINE));
+            $fc->add(new Interlace(ImageInterface::INTERLACE_PLANE));
             return $fc;
         } else {
             return null;
