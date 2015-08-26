@@ -53,7 +53,7 @@ class ImageResizeDefinition {
     /**
      * @var FilterChain
      */
-    protected $additional_transformation;
+    protected $post_transformation;
 
     /**
      * @var ProportionalResize
@@ -71,9 +71,8 @@ class ImageResizeDefinition {
      * @param string $mode one of the ImageResizeDefinition::MODE_* constants, i.e. 'max', 'min', or 'crop'
      * @param bool $upscale Should the image be upscaled if it is smaller than the new size?
      * @param string|null $scale_algorithm One of the ImageInterface::FILTER_* constants, defaults to ProportionalResize::$default_scale_algorithm
-     * * @param FilterInterface[]|null $additional_filters Additional Filters to apply, e.g. for sharpening
      */
-    public function __construct($width, $height = 0, $mode = ImageResizeDefinition::MODE_MAX, $upscale = false, $scale_algorithm = null, $additional_filters = null)
+    public function __construct($width, $height = 0, $mode = ImageResizeDefinition::MODE_MAX, $upscale = false, $scale_algorithm = null)
     {
         $height = $height ?: $width; // if height is 0 (or not set), it defaults to $width
         if ($mode != ImageResizeDefinition::MODE_MAX && $height === INF) {
@@ -98,12 +97,7 @@ class ImageResizeDefinition {
         if ($mode == ImageResizeDefinition::MODE_CROP) {
             $this->resize_transformation->add(new CropCenter(new Box($width, $height)));
         }
-        $this->additional_transformation = new FilterChain();
-        if (is_array($additional_filters)) {
-            foreach ($additional_filters as $filter) {
-                $this->additional_transformation->add($filter);
-            }
-        }
+        $this->post_transformation = new FilterChain();
         $this->outputTypeMap = new OutputTypeMap();
     }
 
@@ -119,13 +113,36 @@ class ImageResizeDefinition {
     }
 
     /**
+     * add a filter to be executed when resizing the image, e.g. for sharpening
+     *
+     * This filter will be executed after the resizing operation,
+     * but only if the image size has really changed. It will be skipped
+     * if no resizing of the image is needed. Use it for adding Sharpen or UnsharpMask filters
+     * that should be executed only after downscaling an image.
+     *
      * @param FilterInterface $filter
      * @param int $priority
      * @return $this
      */
-    public function addAdditionalFilter(FilterInterface $filter, $priority = 0)
+    public function addFilter(FilterInterface $filter, $priority = 0)
     {
-        $this->additional_transformation->add($filter, $priority);
+        $this->resize_transformation->add($filter, $priority);
+        return $this;
+    }
+
+    /**
+     * add a post-processing filter to be always executed
+     *
+     * This filter will ALWAYS be executed no matter whether the image has
+     * actually been resized or not. Usefull e.g. for Strip or Monochrome filter.
+     *
+     * @param FilterInterface $filter
+     * @param int $priority
+     * @return $this
+     */
+    public function addPostFilter(FilterInterface $filter, $priority = 0)
+    {
+        $this->post_transformation->add($filter, $priority);
         return $this;
     }
 
@@ -152,13 +169,13 @@ class ImageResizeDefinition {
     }
 
     /**
-     * Get the filter stack to execute the resize operation
+     * Get the filter stack to execute transformations after resizing
      *
      * @return FilterChain
      */
-    public function getAdditionalTransformation()
+    public function getPostTransformation()
     {
-        return $this->additional_transformation;
+        return $this->post_transformation;
     }
 
     /**

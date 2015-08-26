@@ -45,9 +45,9 @@ class OutputPathNamerBasedir implements OutputPathNamerInterface
         $additional_transformation = null
     )
     {
-        if ($image_resize_definition->getAdditionalTransformation() instanceof FilterChain) {
+        if (count($image_resize_definition->getPostTransformation())) {
             $additional_transformation = ($additional_transformation instanceof FilterChain ? $additional_transformation : new FilterChain());
-            $additional_transformation->append($image_resize_definition->getAdditionalTransformation());
+            $additional_transformation->append($image_resize_definition->getPostTransformation());
         }
 
         if ($additional_transformation instanceof FilterChain) {

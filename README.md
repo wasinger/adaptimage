@@ -47,10 +47,10 @@ use Wa72\AdaptImage\ImageResizeDefinition;
 use Wa72\AdaptImage\ImagineFilter\Sharpen;
 
 $sizes = array(
-    new ImageResizeDefinition(1600, 1200),
-    new ImageResizeDefinition(1280, 1024),
-    new ImageResizeDefinition(768, 576),
-    new ImageResizeDefinition(1024, 768, ImageResizeDefinition::MODE_MAX, false, null, array(new Sharpen())) // example with additional sharpen filter
+    ImageResizeDefinition::create(1600, 1200),
+    ImageResizeDefinition::create(1280, 1024),
+    ImageResizeDefinition::create(768, 576),
+    ImageResizeDefinition::create(1024, 768)->addFilter(new Sharpen() // example with additional sharpen filter
 );
 ```
 

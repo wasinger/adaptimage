@@ -89,7 +89,7 @@ class ImageResizer {
             $transformation = $this->image_resize_definition->getResizeTransformation();
         }
 
-        $post_transformation = $this->image_resize_definition->getAdditionalTransformation();
+        $post_transformation = $this->image_resize_definition->getPostTransformation();
 
         if (!$really_do_it) {
             // calculate size after transformation
@@ -108,7 +108,7 @@ class ImageResizer {
         return ImageFileInfo::createFromFile($cachepath);
     }
 
-    private function _doTransform(ImageFileInfo $image, FilterChain $transformation, OutputTypeOptionsInterface $outputTypeOptions, $post_transformation, $cache_path)
+    private function _doTransform(ImageFileInfo $image, FilterChain $transformation, OutputTypeOptionsInterface $outputTypeOptions, FilterChain $post_transformation, $cache_path)
     {
         $lockfile = sys_get_temp_dir() . DIRECTORY_SEPARATOR . md5($cache_path) . '.lock';
         $lockfp = fopen($lockfile, 'w');
@@ -121,12 +121,21 @@ class ImageResizer {
                 $oldsize = new Box($image->getWidth(), $image->getHeight());
                 $newsize = $transformation->calculateSize($oldsize);
                 if ($oldsize == $newsize && $image->getImagetype() == $outputTypeOptions->getType()) {
-                    // Shortcut for images that are not resized or converted: just copy them
-                    // TODO: do we really always want this?
-                    copy($image->getPathname(), $cache_path);
+                    // image needs neither resizing nor type conversion: skip transformation chain
+                    if (count($post_transformation)) {
+                        // if there are post_transformation filters, we need to apply them
+                        $ii = $post_transformation->apply($this->imagine->open($image->getPathname()));
+                        if ($outputTypeOptions->getFilters() instanceof FilterChain) {
+                            $outputTypeOptions->getFilters()->apply($ii);
+                        }
+                        $ii->save($cache_path, $outputTypeOptions->getSaveOptions());
+                    } else {
+                        // no transformation needed at all: just copy the image
+                        copy($image->getPathname(), $cache_path);
+                    }
                 } else {
                     $ii = $transformation->apply($this->imagine->open($image->getPathname()));
-                    if ($post_transformation instanceof FilterChain) {
+                    if (count($post_transformation)) {
                         $post_transformation->apply($ii);
                     }
                     if ($outputTypeOptions->getFilters() instanceof FilterChain) {
