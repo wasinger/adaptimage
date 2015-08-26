@@ -7,6 +7,7 @@ use Imagine\Image\ImageInterface;
 use Imagine\Image\ImagineInterface;
 use Imagine\Image\BoxInterface;
 use Imagine\Filter\FilterInterface;
+use Traversable;
 
 /**
  * Class FilterChain is a chain of Imagine Filters that can be applied to an image in a specified order.
@@ -26,7 +27,7 @@ use Imagine\Filter\FilterInterface;
  *
  * @package Wa72\AdaptImage
  */
-class FilterChain implements FilterInterface, ResizingFilterInterface
+class FilterChain implements FilterInterface, ResizingFilterInterface, \Countable, \IteratorAggregate
 {
     /**
      * @var array
@@ -182,6 +183,17 @@ class FilterChain implements FilterInterface, ResizingFilterInterface
             }
         }
         return $size;
+    }
+
+    public function count()
+    {
+        return count($this->getFilters());
+    }
+
+
+    public function getIterator()
+    {
+        return $this->getFilters();
     }
 
 
