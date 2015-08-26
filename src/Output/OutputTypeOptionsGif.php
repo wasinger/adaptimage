@@ -23,7 +23,7 @@ class OutputTypeOptionsGif implements OutputTypeOptionsInterface
      */
     public function getExtension($include_dot = false)
     {
-        image_type_to_extension(IMAGETYPE_GIF, $include_dot);
+        return image_type_to_extension(IMAGETYPE_GIF, $include_dot);
     }
 
     /**

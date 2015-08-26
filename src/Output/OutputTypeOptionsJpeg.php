@@ -37,7 +37,7 @@ class OutputTypeOptionsJpeg implements OutputTypeOptionsInterface
      */
     public function getExtension($include_dot = false)
     {
-        image_type_to_extension(IMAGETYPE_JPEG, $include_dot);
+        return ($include_dot ? '.' : '') . 'jpg';
     }
 
     /**

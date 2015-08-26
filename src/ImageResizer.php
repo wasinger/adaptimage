@@ -120,7 +120,7 @@ class ImageResizer {
                 }
                 $oldsize = new Box($image->getWidth(), $image->getHeight());
                 $newsize = $transformation->calculateSize($oldsize);
-                if ($oldsize == $newsize && $image->getExtension() == $outputTypeOptions->getExtension()) {
+                if ($oldsize == $newsize && $image->getImagetype() == $outputTypeOptions->getType()) {
                     // Shortcut for images that are not resized or converted: just copy them
                     // TODO: do we really always want this?
                     copy($image->getPathname(), $cache_path);
