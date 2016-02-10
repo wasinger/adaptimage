@@ -12,7 +12,7 @@ use Wa72\AdaptImage\Output\OutputPathNamerInterface;
 use Wa72\AdaptImage\Output\OutputTypeOptionsInterface;
 
 /**
- * Class ImageTransformer applies a Transformation to an image and caches the resulting image.
+ * Class ImageResizer applies a Transformation to an image and caches the resulting image.
  *
  * @package Wa72\AdaptImage
  */
