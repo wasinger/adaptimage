@@ -6,7 +6,7 @@ use Wa72\AdaptImage\ImageResizeDefinition;
 use Wa72\AdaptImage\Output\OutputTypeMap;
 
 /**
- * This class represents a predefined "class" of responsive images in HTML
+ * ResponsiveImageClass represents a predefined "class" of responsive images in HTML
  * that all share a common "sizes" attribute and available image widths.
  *
  * It holds information about which widths are available for an image of this class
@@ -16,8 +16,6 @@ use Wa72\AdaptImage\Output\OutputTypeMap;
  * Usage: Create an instance of this class using "new ResponsiveImageClass(...)" and add it to a
  * ResponsiveImageHelper instance using the ResponsiveImageHelper::addClass() method.
  *
- * Class ResponsiveImageClass
- * @package Wa72\AdaptImage\ResponsiveImages
  */
 class ResponsiveImageClass
 {
@@ -63,7 +61,13 @@ class ResponsiveImageClass
      *                      defaults to Wa72\AdaptImage\ImagineFilter\ProportionalResize::$default_scale_algorithm
      *
      * @param FilterInterface[] $additional_filters Additional Imagine Filters to be applied when resizing,
-     *                                              e.g. for sharpening
+     *                                              e.g. for sharpening. These filters are only applied when the
+     *                                              image really gets resized, but not when the image already has
+     *                                              the specified size.
+     *
+     * @param FilterInterface[] $post_filters   Additional Imagine Filters to be always applied AFTER resizing, e.g.
+     *                                          Strip() filters. These filters are ALWAYS applied, even if the image
+     *                                          already has the specified size and does not get resized at all.
      *
      * @param OutputTypeMap|null $output_type_map Set an OutputTypeMap for file type conversion when resizing
      */
@@ -75,6 +79,7 @@ class ResponsiveImageClass
         $upscale = false,
         $scale_algorithm = null,
         $additional_filters = [],
+        $post_filters = [],
         $output_type_map = null
     )
     {
@@ -97,6 +102,11 @@ class ResponsiveImageClass
             if (count($additional_filters)) {
                 foreach ($additional_filters as $filter) {
                     $this->irds[$width]->addFilter($filter);
+                }
+            }
+            if (count($post_filters)) {
+                foreach ($post_filters as $filter) {
+                    $this->irds[$width]->addPostFilter($filter);
                 }
             }
             if ($output_type_map instanceof OutputTypeMap) {
