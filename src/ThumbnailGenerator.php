@@ -20,6 +20,11 @@ class ThumbnailGenerator {
     protected $resizer;
 
     /**
+     * @var ImageResizeDefinition
+     */
+    protected $ird;
+
+    /**
      * @param ImagineInterface $imagine
      * @param OutputPathNamerInterface $output_path_namer
      * @param int $width The width of the thumbnail
@@ -36,12 +41,12 @@ class ThumbnailGenerator {
         $filters = array())
     {
         $mode = ($mode == ImageInterface::THUMBNAIL_INSET ? ImageResizeDefinition::MODE_MAX : ImageResizeDefinition::MODE_CROP);
-        $ird = new ImageResizeDefinition($width, $height, $mode, false, null);
+        $this->ird = new ImageResizeDefinition($width, $height, $mode, false, null);
         foreach ($filters as $filter) {
-            $ird->addFilter($filter);
+            $this->ird->addFilter($filter);
         }
-        $ird->addPostFilter(new Strip());
-        $this->resizer = new ImageResizer($imagine, $ird, $output_path_namer);
+        $this->ird->addPostFilter(new Strip());
+        $this->resizer = new ImageResizer($imagine, $output_path_namer);
     }
 
     /**
@@ -60,7 +65,7 @@ class ThumbnailGenerator {
      */
     public function thumbnail($really_do_it, ImageFileInfo $image)
     {
-        return $this->resizer->resize($image, $really_do_it);
+        return $this->resizer->resize($this->ird, $image, $really_do_it);
     }
 
 }

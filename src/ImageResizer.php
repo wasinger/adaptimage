@@ -26,39 +26,32 @@ class ImageResizer {
     protected $imagine;
 
     /**
-     * @var ImageResizeDefinition
-     */
-    protected $image_resize_definition;
-
-    /**
      * @param ImagineInterface $imagine
-     * @param ImageResizeDefinition $image_resize_definition
      * @param OutputPathNamerInterface $output_path_namer
      */
     public function __construct(
         ImagineInterface $imagine,
-        ImageResizeDefinition $image_resize_definition,
         OutputPathNamerInterface $output_path_namer
     )
     {
         $this->imagine = $imagine;
         $this->output_path_namer = $output_path_namer;
-        $this->image_resize_definition = $image_resize_definition;
     }
 
     /**
      * Apply transformation to image. Return an ImageFileInfo object with information about the resulting file.
      * If a cached version of this image/transformation combination already exists, the cached version will be returned.
      *
+     * @param ImageResizeDefinition $image_resize_definition
      * @param ImageFileInfo $image
-     * @param bool $really_do_it    If false, the image will not be really processed, but instead the resulting size is calculated
-     * @param FilterChain|null $pre_transformation   Custom Transformation for this image
+     * @param bool $really_do_it If false, the image will not be really processed, but instead the resulting size is calculated
+     * @param FilterChain|null $pre_transformation Custom Transformation for this image
      *                                                  that will be applied before the resizing transformation
      *                                                  Used for image rotation and custom thumbnail crops
      * @return ImageFileInfo|static
      * @throws \Exception
      */
-    public function resize(ImageFileInfo $image, $really_do_it = false, $pre_transformation = null)
+    public function resize(ImageResizeDefinition $image_resize_definition, ImageFileInfo $image, $really_do_it = false, $pre_transformation = null)
     {
         if ($image->getOrientation() != 1) {
             if ($pre_transformation == null) {
@@ -67,11 +60,11 @@ class ImageResizer {
             $pre_transformation->add(new FixOrientation($image->getOrientation()));
         }
 
-        $outputTypeOptions = $this->image_resize_definition->getOutputTypeMap()->getOutputTypeOptions($image->getImagetype());
+        $outputTypeOptions = $image_resize_definition->getOutputTypeMap()->getOutputTypeOptions($image->getImagetype());
 
         $cachepath = $this->output_path_namer->getOutputPathname(
             $image,
-            $this->image_resize_definition,
+            $image_resize_definition,
             $outputTypeOptions->getExtension(false),
             $pre_transformation
         );
@@ -84,12 +77,12 @@ class ImageResizer {
         if ($pre_transformation instanceof FilterChain) {
             $transformation = new FilterChain($this->imagine);
             $transformation->append($pre_transformation);
-            $transformation->append($this->image_resize_definition->getResizeTransformation());
+            $transformation->append($image_resize_definition->getResizeTransformation());
         } else {
-            $transformation = $this->image_resize_definition->getResizeTransformation();
+            $transformation = $image_resize_definition->getResizeTransformation();
         }
 
-        $post_transformation = $this->image_resize_definition->getPostTransformation();
+        $post_transformation = $image_resize_definition->getPostTransformation();
 
         if (!$really_do_it) {
             // calculate size after transformation

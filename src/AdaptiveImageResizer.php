@@ -17,11 +17,10 @@ class AdaptiveImageResizer
     /** @var  ImageResizeDefinition[] */
     protected $image_resize_definitions;
 
-    /** @var OutputPathNamerInterface */
-    protected $output_path_namer;
-
-    /** @var ImagineInterface */
-    protected $imagine;
+    /**
+     * @var ImageResizer
+     */
+    protected $resizer;
 
     /**
      * @param ImagineInterface $imagine
@@ -30,13 +29,12 @@ class AdaptiveImageResizer
      */
     public function __construct(ImagineInterface $imagine, OutputPathNamerInterface $output_path_namer, $image_resize_definitions = array())
     {
-        $this->imagine = $imagine;
-        $this->output_path_namer = $output_path_namer;
         foreach ($image_resize_definitions as $ird) {
             /** @var ImageResizeDefinition $ird */
             $this->image_resize_definitions[$ird->getWidth()] = $ird;
         }
         ksort($this->image_resize_definitions);
+        $this->resizer = new ImageResizer($imagine, $output_path_namer);
     }
 
     /**
@@ -109,8 +107,7 @@ class AdaptiveImageResizer
         if ($ird === null) {
             throw new \Exception('No ImageResizeDefinitions available');
         }
-        $resizer = new ImageResizer($this->imagine, $ird, $this->output_path_namer);
-        return $resizer->resize($image, $really_do_it);
+        return $this->resizer->resize($ird, $image, $really_do_it);
     }
 
     /**
