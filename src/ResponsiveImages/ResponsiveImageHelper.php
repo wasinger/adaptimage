@@ -1,9 +1,13 @@
 <?php
 namespace Wa72\AdaptImage\ResponsiveImages;
 
+use Imagine\Image\ImagineInterface;
+use Wa72\AdaptImage\ImageResizer;
+use Wa72\AdaptImage\Output\OutputPathNamerInterface;
+
 /**
  * This class is the main entry point for working with responsive images. It needs an object implementing
- * ResponsiveImageRouterInterface for finding images files given by its URL in the filesystem and for generating
+ * ResponsiveImageRouterInterface for finding image files given by its URL in the filesystem and for generating
  * links to resized images.
  *
  * Next, you need to add "classes" for responsive images via the addClass() method. Classes share the same "sizes"
@@ -25,9 +29,27 @@ class ResponsiveImageHelper
      */
     protected $router;
 
-    public function __construct(ResponsiveImageRouterInterface $router)
+    /**
+     * @var ImageResizer
+     */
+    protected $resizer;
+
+    /**
+     *
+     * @param ResponsiveImageRouterInterface $router
+     * @param ImagineInterface $imagine
+     * @param OutputPathNamerInterface $output_path_namer
+     */
+    public function __construct(
+        ResponsiveImageRouterInterface $router,
+        $imagine = null,
+        $output_path_namer = null
+    )
     {
         $this->router = $router;
+        if ($imagine instanceof ImagineInterface && $output_path_namer instanceof OutputPathNamerInterface) {
+            $this->resizer = new ImageResizer($imagine, $output_path_namer);
+        }
     }
 
     /**
@@ -96,4 +118,31 @@ class ResponsiveImageHelper
         return new ResponsiveImage($this->router, $imageurl, $this->getClass($imageclass));
     }
 
+    /**
+     * Create the resized image versions for an image and a given image class
+     *
+     * @param $imageurl
+     * @param $imageclass
+     * @throws \Exception
+     */
+    public function createResizedImageVersions($imageurl, $imageclass)
+    {
+        if (!$this->resizer instanceof ImageResizer) {
+            throw new \Exception('no ImageResizer available, set it using ResponsiveImageHelper::setResizer()');
+        }
+        $image = $this->getResponsiveImage($imageurl, $imageclass);
+        $image->createResizedVersions($this->resizer);
+    }
+
+    /**
+     * Set an ImageResizer instance for use in resizing functions
+     *
+     * @param ImageResizer $resizer
+     * @return $this
+     */
+    public function setResizer(ImageResizer $resizer)
+    {
+        $this->resizer = $resizer;
+        return $this;
+    }
 }

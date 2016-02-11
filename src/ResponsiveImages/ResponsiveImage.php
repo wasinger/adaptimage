@@ -2,13 +2,16 @@
 namespace Wa72\AdaptImage\ResponsiveImages;
 
 use Imagine\Image\Box;
+use Wa72\AdaptImage\ImageFileInfo;
+use Wa72\AdaptImage\ImageResizer;
 use Wa72\AdaptImage\WebImageInfo;
 
 /**
  * This class represents a "responsive image" with multiple widths
  * as described by an HTML "img" tag with "srcset" and "sizes" attributes
  *
- * Its main purpose is to generate the value of the "srcset" attribute from the available image widths.
+ * Its main purpose is to generate the value of the "srcset" attribute from the available image widths,
+ * and the resized image versions.
  *
  * @package Wa72\AdaptImage\ResponsiveImages
  */
@@ -18,6 +21,11 @@ class ResponsiveImage
      * @var string
      */
     protected $original_image_url;
+
+    /**
+     * @var ImageFileInfo
+     */
+    protected $original_ifi;
     /**
      * @var ResponsiveImageClass
      */
@@ -39,19 +47,19 @@ class ResponsiveImage
         $this->original_image_url = $original_image_url;
         $this->class = $class;
 
-        $original_ifi = $router->getOriginalImageFileInfo($original_image_url);
+        $this->original_ifi = $router->getOriginalImageFileInfo($original_image_url);
 
         $imgdata = [];
         $irds = $class->getImageResizeDefinitions();
         $prevwidth = 0;
         foreach ($irds as $width => $ird) {
-            $ii = $ird->calculateSize(new Box($original_ifi->getWidth(), $original_ifi->getHeight()));
+            $ii = $ird->calculateSize(new Box($this->original_ifi->getWidth(), $this->original_ifi->getHeight()));
             if ($ii->getWidth() != $prevwidth) { // avoid duplicates
                 $imgdata[$width] = new WebImageInfo(
                     $router->generateUrl($original_image_url, $width),
                     $ii->getWidth(),
                     $ii->getHeight(),
-                    $original_ifi->getMimetype()
+                    $this->original_ifi->getMimetype()
                 );
             }
             $prevwidth = $ii->getWidth();
@@ -103,4 +111,16 @@ class ResponsiveImage
         return $this->versions[$this->class->getDefaultWidth()];
     }
 
+    /**
+     * Really create all resized versions of this image
+     *
+     * @param ImageResizer $resizer
+     * @throws \Exception
+     */
+    public function createResizedVersions(ImageResizer $resizer)
+    {
+        foreach ($this->class->getImageResizeDefinitions() as $ird) {
+            $resizer->resize($ird, $this->original_ifi, true);
+        }
+    }
 }
