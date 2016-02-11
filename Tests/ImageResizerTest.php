@@ -22,34 +22,33 @@ class ImageResizerTest extends \PHPUnit_Framework_TestCase
     public function testResize()
     {
         $ird = new ImageResizeDefinition(300, 300);
-        $resizer = new ImageResizer($this->imagine, $ird, $this->output_path_namer);
+        $resizer = new ImageResizer($this->imagine, $this->output_path_namer);
 
         $image = new ImageFileInfo('tmp.jpg', 600, 200, IMAGETYPE_JPEG);
-        $resized_image = $resizer->resize($image, false);
+        $resized_image = $resizer->resize($ird, $image, false);
         $this->assertEquals(300, $resized_image->getWidth());
         $this->assertEquals(100, $resized_image->getHeight());
 
         $image = new ImageFileInfo('tmp.jpg', 600, 200, IMAGETYPE_JPEG, 0, 6);
-        $resized_image = $resizer->resize($image, false);
+        $resized_image = $resizer->resize($ird, $image, false);
         $this->assertEquals(100, $resized_image->getWidth());
         $this->assertEquals(300, $resized_image->getHeight());
 
         $image = new ImageFileInfo('tmp.jpg', 200, 600, IMAGETYPE_JPEG);
-        $resized_image = $resizer->resize($image, false);
+        $resized_image = $resizer->resize($ird, $image, false);
         $this->assertEquals(100, $resized_image->getWidth());
         $this->assertEquals(300, $resized_image->getHeight());
 
         $image = new ImageFileInfo('tmp.jpg', 80, 80, IMAGETYPE_JPEG);
-        $resized_image = $resizer->resize($image, false);
+        $resized_image = $resizer->resize($ird, $image, false);
         $this->assertEquals(80, $resized_image->getWidth());
         $this->assertEquals(80, $resized_image->getHeight());
 
         // Test with upscaling
         $ird = new ImageResizeDefinition(300, 300, ImageResizeDefinition::MODE_MAX, true);
-        $resizer = new ImageResizer($this->imagine, $ird, $this->output_path_namer);
 
         $image = new ImageFileInfo('tmp.jpg', 80, 80, IMAGETYPE_JPEG);
-        $resized_image = $resizer->resize($image, false);
+        $resized_image = $resizer->resize($ird, $image, false);
         $this->assertEquals(300, $resized_image->getWidth());
         $this->assertEquals(300, $resized_image->getHeight());
     }
