@@ -6,11 +6,11 @@ use Wa72\AdaptImage\ImageResizeDefinition;
 use Wa72\AdaptImage\ImagineFilter\FilterChain;
 
 /**
- * Class OutputPathNamerBasedir is an OutputPathNamerInterface instance that stores the resulting files
+ * Class OutputPathGeneratorBasedir is an OutputPathGeneratorInterface instance that stores the resulting files
  * in subdirectories of one common basedir.
  *
  */
-class OutputPathNamerBasedir implements OutputPathNamerInterface
+class OutputPathGeneratorBasedir implements OutputPathGeneratorInterface
 {
     /**
      * @var string

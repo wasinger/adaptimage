@@ -5,24 +5,24 @@ use Imagine\Gd\Imagine;
 use Wa72\AdaptImage\ImageFileInfo;
 use Wa72\AdaptImage\ImageResizeDefinition;
 use Wa72\AdaptImage\ImageResizer;
-use Wa72\AdaptImage\Output\OutputPathNamerBasedir;
+use Wa72\AdaptImage\Output\OutputPathGeneratorBasedir;
 
 class ImageResizerTest extends \PHPUnit_Framework_TestCase
 {
-    protected $output_path_namer;
+    protected $output_path_generator;
     protected $imagine;
 
     public function setUp()
     {
         $cachedir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'ai-cache';
-        $this->output_path_namer = new OutputPathNamerBasedir($cachedir);
+        $this->output_path_generator = new OutputPathGeneratorBasedir($cachedir);
         $this->imagine = new Imagine();
     }
 
     public function testResize()
     {
         $ird = new ImageResizeDefinition(300, 300);
-        $resizer = new ImageResizer($this->imagine, $this->output_path_namer);
+        $resizer = new ImageResizer($this->imagine, $this->output_path_generator);
 
         $image = new ImageFileInfo('tmp.jpg', 600, 200, IMAGETYPE_JPEG);
         $resized_image = $resizer->resize($ird, $image, false);

@@ -2,8 +2,8 @@
 namespace Wa72\AdaptImage;
 
 use Imagine\Image\ImagineInterface;
-use Wa72\AdaptImage\Output\OutputPathNamerBasedir;
-use Wa72\AdaptImage\Output\OutputPathNamerInterface;
+use Wa72\AdaptImage\Output\OutputPathGeneratorBasedir;
+use Wa72\AdaptImage\Output\OutputPathGeneratorInterface;
 
 /**
  * Class AdaptiveImageResizer
@@ -24,17 +24,17 @@ class AdaptiveImageResizer
 
     /**
      * @param ImagineInterface $imagine
-     * @param OutputPathNamerInterface $output_path_namer
+     * @param OutputPathGeneratorInterface $output_path_generator
      * @param ImageResizeDefinition[] $image_resize_definitions The predefined image sizes to which images may be scaled
      */
-    public function __construct(ImagineInterface $imagine, OutputPathNamerInterface $output_path_namer, $image_resize_definitions = array())
+    public function __construct(ImagineInterface $imagine, OutputPathGeneratorInterface $output_path_generator, $image_resize_definitions = array())
     {
         foreach ($image_resize_definitions as $ird) {
             /** @var ImageResizeDefinition $ird */
             $this->image_resize_definitions[$ird->getWidth()] = $ird;
         }
         ksort($this->image_resize_definitions);
-        $this->resizer = new ImageResizer($imagine, $output_path_namer);
+        $this->resizer = new ImageResizer($imagine, $output_path_generator);
     }
 
     /**
@@ -116,21 +116,21 @@ class AdaptiveImageResizer
      *
      * @param int[] $widths Array of allowed image width values in pixels
      * @param ImagineInterface $imagine    The Imagine instance for scaling the images.
-     * @param OutputPathNamerInterface|null $output_path_namer  The OutputPathNamer for generating the names
+     * @param OutputPathGeneratorInterface|null $output_path_generator  The OutputPathGenerator for generating the names
      *                                                          of the cached files. If none is provided, a new
-     *                                                          instance of OutputPathNamerBasedir will be created
+     *                                                          instance of OutputPathGeneratorBasedir will be created
      *                                                          with directory sys_get_temp_dir() . '/ai_cache'
      * @return AdaptiveImageResizer
      */
-    static public function create($widths, $imagine, $output_path_namer = null)
+    static public function create($widths, $imagine, $output_path_generator = null)
     {
-        if (!($output_path_namer instanceof OutputPathNamerInterface)) {
-            $output_path_namer = new OutputPathNamerBasedir(sys_get_temp_dir() . '/ai_cache');
+        if (!($output_path_generator instanceof OutputPathGeneratorInterface)) {
+            $output_path_generator = new OutputPathGeneratorBasedir(sys_get_temp_dir() . '/ai_cache');
         }
         $irds = array();
         foreach ($widths as $width) {
             $irds[] = ImageResizeDefinition::create($width, INF);
         }
-        return new self($imagine, $output_path_namer, $irds);
+        return new self($imagine, $output_path_generator, $irds);
     }
 }

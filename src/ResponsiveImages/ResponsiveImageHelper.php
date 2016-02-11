@@ -3,7 +3,7 @@ namespace Wa72\AdaptImage\ResponsiveImages;
 
 use Imagine\Image\ImagineInterface;
 use Wa72\AdaptImage\ImageResizer;
-use Wa72\AdaptImage\Output\OutputPathNamerInterface;
+use Wa72\AdaptImage\Output\OutputPathGeneratorInterface;
 
 /**
  * This class is the main entry point for working with responsive images. It needs an object implementing
@@ -38,17 +38,17 @@ class ResponsiveImageHelper
      *
      * @param ResponsiveImageRouterInterface $router
      * @param ImagineInterface $imagine
-     * @param OutputPathNamerInterface $output_path_namer
+     * @param OutputPathGeneratorInterface $output_path_generator
      */
     public function __construct(
         ResponsiveImageRouterInterface $router,
         $imagine = null,
-        $output_path_namer = null
+        $output_path_generator = null
     )
     {
         $this->router = $router;
-        if ($imagine instanceof ImagineInterface && $output_path_namer instanceof OutputPathNamerInterface) {
-            $this->resizer = new ImageResizer($imagine, $output_path_namer);
+        if ($imagine instanceof ImagineInterface && $output_path_generator instanceof OutputPathGeneratorInterface) {
+            $this->resizer = new ImageResizer($imagine, $output_path_generator);
         }
     }
 

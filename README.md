@@ -17,7 +17,7 @@ __Features__:
     e.g. for sharpening.
 -   The resized images are written to cache files whose names are computed from the input image and the applied
     transformation. You can easily write your own naming roules by implementing
-    [`OutputPathNamerInterface`](src/Output/OutputPathNamerInterface.php). The next time a resized image is required the
+    [`OutputPathGeneratorInterface`](src/Output/OutputPathGeneratorInterface.php). The next time a resized image is required the
     cached file is returned. The cached file will be regenerated when the original file changes.
 -   Adaptive images: acquire an image for an arbitrary screen width and get a resized image with the nearest defined size.
     You can select whether you want the next smaller images (that completely fits into the given width) or the next
@@ -54,17 +54,17 @@ $sizes = array(
 );
 ```
 
-Next, we need an object implementing [`OutputPathNamerInterface`](src/Output/OutputPathNamerInterface.php) that is able to
+Next, we need an object implementing [`OutputPathGeneratorInterface`](src/Output/OutputPathGeneratorInterface.php) that is able to
 compute the path and filename where a resized image should be stored (depending on the input file and the applied 
 transformations).
-[`OutputPathNamerBasedir`](src/Output/OutputPathNamerBasedir.php) is a class that generates output filenames that are all
+[`OutputPathGeneratorBasedir`](src/Output/OutputPathGeneratorBasedir.php) is a class that generates output filenames that are all
 placed in per-transformation subdirectories within a common base directory.
 
 ```php
-use Wa72\AdaptImage\Output\OutputPathNamerBasedir;
+use Wa72\AdaptImage\Output\OutputPathGeneratorBasedir;
 
 $cachedir = __DIR__  . '/cache';
-$output_path_namer = new OutputPathNamerBasedir($cachedir);
+$output_path_generator = new OutputPathGeneratorBasedir($cachedir);
 ```
 
 Now we are ready to define an [`AdaptiveImageResizer`](src/AdaptiveImageResizer.php) and a 
@@ -77,8 +77,8 @@ use Imagine\Imagick\Imagine; // or some other Imagine version
 
 $imagine = new Imagine();
 
-$thumbnail_generator = new ThumbnailGenerator($imagine, $output_path_namer, 150, 150, 'inset');
-$resizer = new AdaptiveImageResizer($imagine, $output_path_namer, $sizes);
+$thumbnail_generator = new ThumbnailGenerator($imagine, $output_path_generator, 150, 150, 'inset');
+$resizer = new AdaptiveImageResizer($imagine, $output_path_generator, $sizes);
 ```
 
 Both the `ThumbnailGenerator` and the `AdaptiveImageResizer` get an `ImageFileInfo` object of the original file as

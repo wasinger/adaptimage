@@ -6,11 +6,11 @@ use Wa72\AdaptImage\ImageResizeDefinition;
 use Wa72\AdaptImage\ImagineFilter\FilterChain;
 
 /**
- * Interface OutputPathNamerInterface computes the output path and filename for a given original image file
+ * Interface OutputPathGeneratorInterface computes the output path and filename for a given original image file
  * and an ImageResizeDefinition object
  *
  */
-interface OutputPathNamerInterface {
+interface OutputPathGeneratorInterface {
     /**
      * @param ImageFileInfo $input_image
      * @param ImageResizeDefinition $image_resize_definition

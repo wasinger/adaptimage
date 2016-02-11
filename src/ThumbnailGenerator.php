@@ -6,7 +6,7 @@ use Imagine\Filter\FilterInterface;
 use Imagine\Image\ImageInterface;
 use Imagine\Image\ImagineInterface;
 use Imagine\Image\Point;
-use Wa72\AdaptImage\Output\OutputPathNamerInterface;
+use Wa72\AdaptImage\Output\OutputPathGeneratorInterface;
 
 /**
  * Class ThumbnailGenerator
@@ -26,7 +26,7 @@ class ThumbnailGenerator {
 
     /**
      * @param ImagineInterface $imagine
-     * @param OutputPathNamerInterface $output_path_namer
+     * @param OutputPathGeneratorInterface $output_path_generator
      * @param int $width The width of the thumbnail
      * @param int $height The height of the thumbnail
      * @param string $mode One of ImageInterface::THUMBNAIL_INSET or ImageInterface::THUMBNAIL_OUTBOUND
@@ -34,7 +34,7 @@ class ThumbnailGenerator {
      */
     public function __construct(
         ImagineInterface $imagine,
-        OutputPathNamerInterface $output_path_namer,
+        OutputPathGeneratorInterface $output_path_generator,
         $width,
         $height,
         $mode = ImageInterface::THUMBNAIL_INSET,
@@ -46,7 +46,7 @@ class ThumbnailGenerator {
             $this->ird->addFilter($filter);
         }
         $this->ird->addPostFilter(new Strip());
-        $this->resizer = new ImageResizer($imagine, $output_path_namer);
+        $this->resizer = new ImageResizer($imagine, $output_path_generator);
     }
 
     /**

@@ -8,7 +8,7 @@ use Imagine\Image\ImagineInterface;
 use Wa72\AdaptImage\ImagineFilter\FilterChain;
 use Wa72\AdaptImage\ImagineFilter\FixOrientation;
 use Wa72\AdaptImage\ImagineFilter\ResizingFilterInterface;
-use Wa72\AdaptImage\Output\OutputPathNamerInterface;
+use Wa72\AdaptImage\Output\OutputPathGeneratorInterface;
 use Wa72\AdaptImage\Output\OutputTypeOptionsInterface;
 
 /**
@@ -17,8 +17,8 @@ use Wa72\AdaptImage\Output\OutputTypeOptionsInterface;
  * @package Wa72\AdaptImage
  */
 class ImageResizer {
-    /** @var OutputPathNamerInterface  */
-    protected $output_path_namer;
+    /** @var OutputPathGeneratorInterface  */
+    protected $output_path_generator;
 
     /**
      * @var ImagineInterface
@@ -27,15 +27,15 @@ class ImageResizer {
 
     /**
      * @param ImagineInterface $imagine
-     * @param OutputPathNamerInterface $output_path_namer
+     * @param OutputPathGeneratorInterface $output_path_generator
      */
     public function __construct(
         ImagineInterface $imagine,
-        OutputPathNamerInterface $output_path_namer
+        OutputPathGeneratorInterface $output_path_generator
     )
     {
         $this->imagine = $imagine;
-        $this->output_path_namer = $output_path_namer;
+        $this->output_path_generator = $output_path_generator;
     }
 
     /**
@@ -62,7 +62,7 @@ class ImageResizer {
 
         $outputTypeOptions = $image_resize_definition->getOutputTypeMap()->getOutputTypeOptions($image->getImagetype());
 
-        $cachepath = $this->output_path_namer->getOutputPathname(
+        $cachepath = $this->output_path_generator->getOutputPathname(
             $image,
             $image_resize_definition,
             $outputTypeOptions->getExtension(false),
