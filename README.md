@@ -2,7 +2,7 @@ AdaptImage
 ==========
 
 [![Build Status](https://travis-ci.org/wasinger/adaptimage.svg?branch=master)](https://travis-ci.org/wasinger/adaptimage)
-[![Downloads from Packagist](http://img.shields.io/packagist/dt/wa72/adaptimage.svg)](https://packagist.org/packages/wa72/adaptimage)
+[![Latest Version](http://img.shields.io/packagist/v/wa72/adaptimage.svg)](https://packagist.org/packages/wa72/adaptimage)
 
 A small PHP library that lets you easily resize images to pre-defined sizes (useful for adaptive images), 
 generate thumbnails, and cache them.
@@ -19,6 +19,7 @@ __Features__:
     transformation. You can easily write your own naming roules by implementing
     [`OutputPathGeneratorInterface`](src/Output/OutputPathGeneratorInterface.php). The next time a resized image is required the
     cached file is returned. The cached file will be regenerated when the original file changes.
+-   __New__: Helper classes for responsive images according to the HTML5 spec with `srcset` and `sizes` attritubes that generate the resized image files and the value for the `srcset` attribute.   
 -   Adaptive images: acquire an image for an arbitrary screen width and get a resized image with the nearest defined size.
     You can select whether you want the next smaller images (that completely fits into the given width) or the next
     bigger image (that can be downscaled by the browser to fill the screen).
@@ -32,7 +33,7 @@ Installation
 ------------
 
 ```
-composer require "wa72/adaptimage": "dev-master"
+composer require "wa72/adaptimage"
 ```
 
 Usage
