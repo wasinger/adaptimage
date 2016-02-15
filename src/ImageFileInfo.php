@@ -1,6 +1,8 @@
 <?php
 namespace Wa72\AdaptImage;
 
+use Wa72\AdaptImage\Exception\ImageFileNotFoundException;
+
 /**
  * Class ImageFileInfo represents information about an image file
  *
@@ -38,11 +40,20 @@ class ImageFileInfo {
     protected $orientation = 0;
 
     /**
+     * ImageFileInfo constructor.
+     * There is no check whether $pathname really exists, so it is possible to create ImageFileInfo objects
+     * for non-existing files. This is used to carry information about resized images and thumbnails before
+     * they are actually created. Use the fileExists() method to check whether the file exists,
+     * and use the static creator function ImageFileInfo::createFromFile($pathname) to create
+     * ImageFileInfo objects from real image files.
+     *
+     * @see ImageFileInfo::createFromFile()
+     *
      * @param string $pathname
      * @param int $width
      * @param int $height
-     * @param int $imagetype
-     * @param int $last_modified
+     * @param int $imagetype One of the PHP IMAGETYPE_ constants (e.g. IMAGETYPE_JPEG)
+     * @param int $last_modified Unix timestamp as returned by filemtime()
      * @param int $orientation
      */
     public function __construct($pathname, $width, $height, $imagetype, $last_modified = 0, $orientation = 0)
@@ -59,10 +70,17 @@ class ImageFileInfo {
         $this->orientation = $orientation;
     }
 
+    /**
+     * Create an ImageFileInfo from an image file
+     *
+     * @param string $pathname The pathname of an image file.
+     * @return ImageFileInfo
+     * @throws ImageFileNotFoundException If the image does not exist
+     */
     static public function createFromFile($pathname)
     {
         if (!file_exists($pathname)) {
-            throw new \Exception('File ' . $pathname . ' not found.');
+            throw new ImageFileNotFoundException($pathname);
         }
         $ii = getimagesize($pathname);
         $width = $ii[0];
@@ -76,6 +94,14 @@ class ImageFileInfo {
             $orientation = 0;
         }
         return new static($pathname, $width, $height, $imagetype, $last_modified, $orientation);
+    }
+
+    /**
+     * @return bool
+     */
+    public function fileExists()
+    {
+        return file_exists($this->pathname);
     }
 
     /**

@@ -2,6 +2,7 @@
 namespace Wa72\AdaptImage\ResponsiveImages;
 
 use Imagine\Filter\FilterInterface;
+use Wa72\AdaptImage\Exception\WidthNotAllowedException;
 use Wa72\AdaptImage\ImageResizeDefinition;
 use Wa72\AdaptImage\Output\OutputTypeMap;
 
@@ -19,6 +20,10 @@ use Wa72\AdaptImage\Output\OutputTypeMap;
  */
 class ResponsiveImageClass
 {
+    /**
+     * @var string
+     */
+    protected $name;
     /**
      * @var int[]
      */
@@ -42,22 +47,23 @@ class ResponsiveImageClass
     /**
      * ResponsiveImageClass constructor.
      *
+     * @param string $name A name (identifier) for this class of responsive images
      * @param int[] $available_image_widths List of available image widths
      *
-     * @param string $html_sizes_attribute  The "sizes" html attribute for img tags of this class
+     * @param string $html_sizes_attribute The "sizes" html attribute for img tags of this class
      *
-     * @param Callable|int $height_constraint   How the max height of the generated images is limited, possible values:
+     * @param Callable|int $height_constraint How the max height of the generated images is limited, possible values:
      *                              0: Max. height = width
      *                              INF: Height is unlimited
      *                              or a Callable accepting the width as parameter and returning the height
      *
-     * @param int $default_width    The default width of an image of this class,
+     * @param int $default_width The default width of an image of this class,
      *                              defaults to the first value in $available_image_widths
      *
-     * @param bool $upscale     Whether the image should be upscaled if it's width is smaller than required width
+     * @param bool $upscale Whether the image should be upscaled if it's width is smaller than required width
      *                          default: false
      *
-     * @param string|null $scale_algorithm  One of the Imagine\ImageInterface::FILTER_* constants
+     * @param string|null $scale_algorithm One of the Imagine\ImageInterface::FILTER_* constants
      *                      defaults to Wa72\AdaptImage\ImagineFilter\ProportionalResize::$default_scale_algorithm
      *
      * @param FilterInterface[] $additional_filters Additional Imagine Filters to be applied when resizing,
@@ -65,13 +71,14 @@ class ResponsiveImageClass
      *                                              image really gets resized, but not when the image already has
      *                                              the specified size.
      *
-     * @param FilterInterface[] $post_filters   Additional Imagine Filters to be always applied AFTER resizing, e.g.
+     * @param FilterInterface[] $post_filters Additional Imagine Filters to be always applied AFTER resizing, e.g.
      *                                          Strip() filters. These filters are ALWAYS applied, even if the image
      *                                          already has the specified size and does not get resized at all.
      *
      * @param OutputTypeMap|null $output_type_map Set an OutputTypeMap for file type conversion when resizing
      */
     public function __construct(
+        $name,
         $available_image_widths,
         $html_sizes_attribute,
         $height_constraint = INF,
@@ -83,6 +90,7 @@ class ResponsiveImageClass
         $output_type_map = null
     )
     {
+        $this->name = $name;
         $this->available_image_widths = $available_image_widths;
 
         if ($height_constraint === 0
@@ -118,12 +126,20 @@ class ResponsiveImageClass
 
         if ($default_width > 0) {
             if (!in_array($default_width, $this->available_image_widths)) {
-                throw new \InvalidArgumentException(sprintf('value %s given as default width does not exist in available_image_widths', $default_width));
+                throw new WidthNotAllowedException($default_width);
             }
             $this->default_width = $default_width;
         } else {
             $this->default_width = $available_image_widths[0];
         }
+    }
+
+    /**
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
     }
 
     /**
@@ -136,6 +152,11 @@ class ResponsiveImageClass
         return $this->available_image_widths;
     }
 
+    /**
+     * Get the default width
+     *
+     * @return int
+     */
     public function getDefaultWidth()
     {
         return $this->default_width;
@@ -160,7 +181,7 @@ class ResponsiveImageClass
     public function getImageResizeDefinitionByWidth($width)
     {
         if (!key_exists($width, $this->irds)) {
-            throw new \InvalidArgumentException(sprintf('width %s is not defined', $width));
+            throw new WidthNotAllowedException($width);
         }
         return $this->irds[$width];
     }
@@ -183,5 +204,16 @@ class ResponsiveImageClass
     public function getDefaultImageResizeDefinition()
     {
         return $this->irds[$this->default_width];
+    }
+
+    /**
+     * Check whether $width is a defined width for this class
+     *
+     * @param int $width
+     * @return bool
+     */
+    public function hasWidth($width)
+    {
+        return in_array($width, $this->available_image_widths);
     }
 }

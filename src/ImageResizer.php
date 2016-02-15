@@ -1,13 +1,12 @@
 <?php
 namespace Wa72\AdaptImage;
 
-
-use Imagine\Filter\Transformation;
 use Imagine\Image\Box;
 use Imagine\Image\ImagineInterface;
+use Wa72\AdaptImage\Exception\ImageFileNotFoundException;
+use Wa72\AdaptImage\Exception\ImageResizingFailedException;
 use Wa72\AdaptImage\ImagineFilter\FilterChain;
 use Wa72\AdaptImage\ImagineFilter\FixOrientation;
-use Wa72\AdaptImage\ImagineFilter\ResizingFilterInterface;
 use Wa72\AdaptImage\Output\OutputPathGeneratorInterface;
 use Wa72\AdaptImage\Output\OutputTypeOptionsInterface;
 
@@ -49,7 +48,8 @@ class ImageResizer {
      *                                                  that will be applied before the resizing transformation
      *                                                  Used for image rotation and custom thumbnail crops
      * @return ImageFileInfo|static
-     * @throws \Exception
+     * @throws ImageFileNotFoundException If the original image file does not exist or is not readable
+     * @throws ImageResizingFailedException If the image could not be resized
      */
     public function resize(ImageResizeDefinition $image_resize_definition, ImageFileInfo $image, $really_do_it = false, $pre_transformation = null)
     {
@@ -90,10 +90,15 @@ class ImageResizer {
             return new ImageFileInfo($cachepath, $size->getWidth(), $size->getHeight(), $outputTypeOptions->getType(), 0);
         }
 
+        // check whether original file exists
+        if (!$image->fileExists()) {
+            throw new ImageFileNotFoundException($image->getPathname());
+        }
+
         $count = 0;
         while ($this->_doTransform($image, $transformation, $outputTypeOptions, $post_transformation, $cachepath) === false) {
             if ($count > 4) {
-                throw new \Exception('Could not generate Thumbnail');
+                throw new ImageResizingFailedException('Could not generate Thumbnail');
             }
             sleep(2);
             $count++;
@@ -117,24 +122,40 @@ class ImageResizer {
                     // image needs neither resizing nor type conversion: skip transformation chain
                     if (count($post_transformation)) {
                         // if there are post_transformation filters, we need to apply them
-                        $ii = $post_transformation->apply($this->imagine->open($image->getPathname()));
-                        if ($outputTypeOptions->getFilters() instanceof FilterChain) {
-                            $outputTypeOptions->getFilters()->apply($ii);
+                        try {
+                            $ii = $post_transformation->apply($this->imagine->open($image->getPathname()));
+                            if ($outputTypeOptions->getFilters() instanceof FilterChain) {
+                                $outputTypeOptions->getFilters()->apply($ii);
+                            }
+                            $ii->save($cache_path, $outputTypeOptions->getSaveOptions());
+                        } catch (\RuntimeException $e) {
+                            throw new ImageResizingFailedException(
+                                sprintf('Image %s could not be resized.', $image->getPathname()),
+                                0,
+                                $e
+                            );
                         }
-                        $ii->save($cache_path, $outputTypeOptions->getSaveOptions());
                     } else {
                         // no transformation needed at all: just copy the image
                         copy($image->getPathname(), $cache_path);
                     }
                 } else {
-                    $ii = $transformation->apply($this->imagine->open($image->getPathname()));
-                    if (count($post_transformation)) {
-                        $post_transformation->apply($ii);
+                    try {
+                        $ii = $transformation->apply($this->imagine->open($image->getPathname()));
+                        if (count($post_transformation)) {
+                            $post_transformation->apply($ii);
+                        }
+                        if ($outputTypeOptions->getFilters() instanceof FilterChain) {
+                            $outputTypeOptions->getFilters()->apply($ii);
+                        }
+                        $ii->save($cache_path, $outputTypeOptions->getSaveOptions());
+                    } catch (\RuntimeException $e) {
+                        throw new ImageResizingFailedException(
+                            sprintf('Image %s could not be resized.', $image->getPathname()),
+                            0,
+                            $e
+                        );
                     }
-                    if ($outputTypeOptions->getFilters() instanceof FilterChain) {
-                        $outputTypeOptions->getFilters()->apply($ii);
-                    }
-                    $ii->save($cache_path, $outputTypeOptions->getSaveOptions());
                 }
             }
             unlink($lockfile);

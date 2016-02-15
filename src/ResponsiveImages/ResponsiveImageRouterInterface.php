@@ -35,14 +35,18 @@ interface ResponsiveImageRouterInterface
      *
      * Implementation hint:
      *
-     * - make a controller action in your application that resizes an image, expecting 2 parameters:
-     * The image (given as URL relative to your site's root) and the desired width of the resized image
+     * - make a controller action in your application that resizes an image, expecting 3 parameters:
+     * The image (given as URL relative to your site's root), the name of a ResponsiveImageClass registered by a
+     * ResponsiveImageHelper instance, and the desired width of the resized image
      *
      * - Let your routing component compute the URL to this action with the given parameters
      *
-     * @param string $original_image_url The URL pointing to the original image (usually relative to your site's root, e.g. 'images/img1.jpg')
-     * @param int $image_width The width of the resized image
-     * @return string The URL pointing to the resized image
+     * @param string $original_image_url    The URL pointing to the original image
+     *                                      (usually relative to your site's root, e.g. 'images/img1.jpg')
+     * @param string $image_class   The name (identifier string) for a ResponsiveImageClass
+     *                              registered via ResponsiveImageHelper::addClass()
+     * @param int $image_width      The desired width of the resized image
+     * @return string               The URL pointing to the resized image
      */
-    public function generateUrl($original_image_url, $image_width);
+    public function generateUrl($original_image_url, $image_class, $image_width);
 }

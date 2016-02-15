@@ -26,7 +26,7 @@ class ResponsiveImageHelperTest extends \PHPUnit_Framework_TestCase
     public function testResponsiveImageHelper()
     {
         $helper = new ResponsiveImageHelper($this->router);
-        $helper->addClass('first', new ResponsiveImageClass([500, 1000, 2000], '100vw'));
+        $helper->addClass(new ResponsiveImageClass('first', [500, 1000, 2000], '100vw'));
 
         $ri = $helper->getResponsiveImage('image1.jpg', 'first');
 
@@ -44,7 +44,7 @@ class MockResponsiveImageRouter implements ResponsiveImageRouterInterface
         return new ImageFileInfo($original_image_url, 1900, 1200, IMAGETYPE_JPEG);
     }
 
-    public function generateUrl($original_image_url, $image_width)
+    public function generateUrl($original_image_url, $image_class, $image_width)
     {
         return '/imagemock/' . $image_width . '/' . $original_image_url;
     }

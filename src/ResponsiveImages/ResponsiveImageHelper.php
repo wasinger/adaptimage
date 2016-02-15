@@ -2,6 +2,7 @@
 namespace Wa72\AdaptImage\ResponsiveImages;
 
 use Imagine\Image\ImagineInterface;
+use Wa72\AdaptImage\Exception\ImageClassNotRegisteredException;
 use Wa72\AdaptImage\ImageResizer;
 use Wa72\AdaptImage\Output\OutputPathGeneratorInterface;
 
@@ -35,6 +36,11 @@ class ResponsiveImageHelper
     protected $resizer;
 
     /**
+     * @var int[]
+     */
+    protected $widths = [];
+
+    /**
      *
      * @param ResponsiveImageRouterInterface $router
      * @param ImagineInterface $imagine
@@ -53,14 +59,17 @@ class ResponsiveImageHelper
     }
 
     /**
-     * Add a ResponsiveImageClass object to the list of responsive image classes
+     * Add a ResponsiveImageClass object to the registered responsive image classes
      *
-     * @param string $name A name (identifier) for this class
      * @param ResponsiveImageClass $class The ResponsiveImageClass object
+     * @throws \Exception
      */
-    public function addClass($name, ResponsiveImageClass $class)
+    public function addClass(ResponsiveImageClass $class)
     {
-        $this->classes[$name] = $class;
+        if (array_key_exists($class->getName(), $this->classes)) {
+            throw new \Exception(sprintf('A responsive image class with name "%s" is already registered', $class->getName()));
+        }
+        $this->classes[$class->getName()] = $class;
     }
 
     /**
@@ -82,6 +91,9 @@ class ResponsiveImageHelper
      */
     public function getClass($classname)
     {
+        if (!array_key_exists($classname, $this->classes)) {
+            throw new ImageClassNotRegisteredException($classname);
+        }
         return $this->classes[$classname];
     }
 
@@ -121,17 +133,37 @@ class ResponsiveImageHelper
     /**
      * Create the resized image versions for an image and a given image class
      *
-     * @param $imageurl
-     * @param $imageclass
+     * @param string $imageurl
+     * @param string $imageclass
      * @throws \Exception
      */
     public function createResizedImageVersions($imageurl, $imageclass)
     {
         if (!$this->resizer instanceof ImageResizer) {
-            throw new \Exception('no ImageResizer available, set it using ResponsiveImageHelper::setResizer()');
+            throw new \LogicException('no ImageResizer available, set it using ResponsiveImageHelper::setResizer()');
         }
         $image = $this->getResponsiveImage($imageurl, $imageclass);
         $image->createResizedVersions($this->resizer);
+    }
+
+    /**
+     * @param string $imageurl
+     * @param string $imageclass
+     * @param int $width
+     * @return \Wa72\AdaptImage\ImageFileInfo
+     * @throws \Exception
+     */
+    public function getResizedImageVersion($imageurl, $imageclass, $width)
+    {
+        if (!$this->resizer instanceof ImageResizer) {
+            throw new \LogicException('no ImageResizer available, set it using ResponsiveImageHelper::setResizer()');
+        }
+        $image = $this->router->getOriginalImageFileInfo($imageurl);
+        return $this->resizer->resize(
+            $this->getClass($imageclass)->getImageResizeDefinitionByWidth($width),
+            $image,
+            true
+        );
     }
 
     /**

@@ -2,6 +2,7 @@
 namespace Wa72\AdaptImage\ResponsiveImages;
 
 use Imagine\Image\Box;
+use Wa72\AdaptImage\Exception\WidthNotAllowedException;
 use Wa72\AdaptImage\ImageFileInfo;
 use Wa72\AdaptImage\ImageResizer;
 use Wa72\AdaptImage\WebImageInfo;
@@ -56,7 +57,7 @@ class ResponsiveImage
             $ii = $ird->calculateSize(new Box($this->original_ifi->getWidth(), $this->original_ifi->getHeight()));
             if ($ii->getWidth() != $prevwidth) { // avoid duplicates
                 $imgdata[$width] = new WebImageInfo(
-                    $router->generateUrl($original_image_url, $width),
+                    $router->generateUrl($original_image_url, $class->getName(), $width),
                     $ii->getWidth(),
                     $ii->getHeight(),
                     $this->original_ifi->getMimetype()
@@ -122,5 +123,25 @@ class ResponsiveImage
         foreach ($this->class->getImageResizeDefinitions() as $ird) {
             $resizer->resize($ird, $this->original_ifi, true);
         }
+    }
+
+    /**
+     * Resize the image to a defined width and return the corresponding ImageFileInfo object
+     *
+     * @param ImageResizer $resizer
+     * @param int $width The desired width; it must be a width that is availaible in the image class
+     * @return ImageFileInfo The ImageFileInfo object pointing to the resized image file
+     * @throws \Exception
+     */
+    public function getResizedVersion(ImageResizer $resizer, $width)
+    {
+        if (!$this->class->hasWidth($width)) {
+            throw new WidthNotAllowedException($width);
+        }
+        return $resizer->resize(
+            $this->class->getImageResizeDefinitionByWidth($width),
+            $this->original_ifi,
+            true
+        );
     }
 }
