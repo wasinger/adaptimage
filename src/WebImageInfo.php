@@ -5,7 +5,6 @@ namespace Wa72\AdaptImage;
 /**
  * This class holds information about a web image, such as URL, width and height.
  *
- * @package Wa72\AdaptImage
  */
 class WebImageInfo
 {

@@ -6,7 +6,6 @@ use Wa72\AdaptImage\Exception\ImageFileNotFoundException;
 /**
  * Class ImageFileInfo represents information about an image file
  *
- * @package Wa72\AdaptImage
  */
 class ImageFileInfo {
     protected $pathname;

@@ -10,7 +10,6 @@ use Wa72\AdaptImage\Output\OutputPathGeneratorInterface;
  *
  * Creates and caches images resized to some predefined sizes
  *
- * @package Wa72\AdaptImage
  */
 class AdaptiveImageResizer
 {

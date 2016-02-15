@@ -17,7 +17,6 @@ use Wa72\AdaptImage\Output\OutputTypeMap;
  * plus additional Imagine\Filter\FilterInterface filters to be applied when scaling)
  * that creates an FilterChain object to execute the defined scaling operation.
  *
- * @package Wa72\AdaptImage
  */
 class ImageResizeDefinition {
 

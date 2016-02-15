@@ -14,7 +14,6 @@ use Wa72\AdaptImage\WebImageInfo;
  * Its main purpose is to generate the value of the "srcset" attribute from the available image widths,
  * and the resized image versions.
  *
- * @package Wa72\AdaptImage\ResponsiveImages
  */
 class ResponsiveImage
 {

@@ -13,7 +13,6 @@ use Wa72\AdaptImage\Output\OutputTypeOptionsInterface;
 /**
  * Class ImageResizer applies a Transformation to an image and caches the resulting image.
  *
- * @package Wa72\AdaptImage
  */
 class ImageResizer {
     /** @var OutputPathGeneratorInterface  */

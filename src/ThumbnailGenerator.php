@@ -13,7 +13,6 @@ use Wa72\AdaptImage\Output\OutputPathGeneratorInterface;
  *
  * Creates and caches thumbnails for images
  *
- * @package Wa72\AdaptImage
  */
 class ThumbnailGenerator {
     /** @var  ImageResizer */

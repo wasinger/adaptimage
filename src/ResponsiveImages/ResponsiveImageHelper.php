@@ -3,6 +3,9 @@ namespace Wa72\AdaptImage\ResponsiveImages;
 
 use Imagine\Image\ImagineInterface;
 use Wa72\AdaptImage\Exception\ImageClassNotRegisteredException;
+use Wa72\AdaptImage\Exception\ImageFileNotFoundException;
+use Wa72\AdaptImage\Exception\ImageResizingFailedException;
+use Wa72\AdaptImage\Exception\WidthNotAllowedException;
 use Wa72\AdaptImage\ImageResizer;
 use Wa72\AdaptImage\Output\OutputPathGeneratorInterface;
 
@@ -80,7 +83,7 @@ class ResponsiveImageHelper
      */
     public function isClassDefined($classname)
     {
-        return array_key_exists($classname, $this->classes);
+        return (string) $classname != '' && array_key_exists($classname, $this->classes);
     }
 
     /**
@@ -91,7 +94,7 @@ class ResponsiveImageHelper
      */
     public function getClass($classname)
     {
-        if (!array_key_exists($classname, $this->classes)) {
+        if ((string) $classname == '' || !array_key_exists($classname, $this->classes)) {
             throw new ImageClassNotRegisteredException($classname);
         }
         return $this->classes[$classname];
@@ -151,16 +154,24 @@ class ResponsiveImageHelper
      * @param string $imageclass
      * @param int $width
      * @return \Wa72\AdaptImage\ImageFileInfo
-     * @throws \Exception
+     * @throws \LogicException If $this->imageresizer is not an instance of ImageResizer
+     * @throws ImageClassNotRegisteredException If the image class is not known
+     * @throws WidthNotAllowedException If the given width is not allowed in this class
+     * @throws ImageFileNotFoundException If the original image is not found
+     * @throws ImageResizingFailedException If resizing of the image failed
      */
     public function getResizedImageVersion($imageurl, $imageclass, $width)
     {
+        $imageclass = $this->getClass($imageclass);
         if (!$this->resizer instanceof ImageResizer) {
             throw new \LogicException('no ImageResizer available, set it using ResponsiveImageHelper::setResizer()');
         }
+        if (!$imageclass->hasWidth($width)) {
+            throw new WidthNotAllowedException($width);
+        }
         $image = $this->router->getOriginalImageFileInfo($imageurl);
         return $this->resizer->resize(
-            $this->getClass($imageclass)->getImageResizeDefinitionByWidth($width),
+            $imageclass->getImageResizeDefinitionByWidth($width),
             $image,
             true
         );

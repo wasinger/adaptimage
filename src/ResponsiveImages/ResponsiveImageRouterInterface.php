@@ -14,7 +14,6 @@ use Wa72\AdaptImage\ImageFileInfo;
  *
  * An object implementing this interface is needed by ResponsiveImageHelper.
  *
- * @package Wa72\AdaptImage\ResponsiveImages
  */
 interface ResponsiveImageRouterInterface
 {

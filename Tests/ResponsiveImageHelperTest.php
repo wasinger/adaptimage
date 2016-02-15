@@ -1,11 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: stu0014
- * Date: 10.02.2016
- * Time: 16:50
- */
-
 namespace Wa72\AdaptImage\Tests;
 
 
