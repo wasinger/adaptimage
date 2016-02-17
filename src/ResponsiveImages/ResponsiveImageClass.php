@@ -216,4 +216,68 @@ class ResponsiveImageClass
     {
         return in_array($width, $this->available_image_widths);
     }
+
+    /**
+     * add a filter to be executed when resizing the image, e.g. for sharpening
+     *
+     * This filter will be executed after the resizing operation,
+     * but only if the image size has really changed. It will be skipped
+     * if no resizing of the image is needed. Use it for adding Sharpen or UnsharpMask filters
+     * that should be executed only after downscaling an image.
+     *
+     * @param FilterInterface $filter
+     * @param int $priority
+     * @return $this
+     */
+    public function addFilter(FilterInterface $filter, $priority = 0)
+    {
+        foreach ($this->available_image_widths as $width) {
+            $this->irds[$width]->addFilter($filter, $priority);
+        }
+        return $this;
+    }
+
+    /**
+     * add a post-processing filter to be always executed
+     *
+     * This filter will ALWAYS be executed no matter whether the image has
+     * actually been resized or not. Usefull e.g. for Strip or Monochrome filter.
+     *
+     * @param FilterInterface $filter
+     * @param int $priority
+     * @return $this
+     */
+    public function addPostFilter(FilterInterface $filter, $priority = 0)
+    {
+        foreach ($this->available_image_widths as $width) {
+            $this->irds[$width]->addPostFilter($filter, $priority);
+        }
+        return $this;
+    }
+
+    /**
+     * Set the algorithm used for scaling
+     *
+     * @param $algorithm string One of the ImageInterface::FILTER_* constants
+     * @return $this
+     */
+    public function setScaleAlgorithm($algorithm)
+    {
+        foreach ($this->available_image_widths as $width) {
+            $this->irds[$width]->setScaleAlgorithm($algorithm);
+        }
+        return $this;
+    }
+
+    /**
+     * @param OutputTypeMap $outputTypeMap
+     * @return ImageResizeDefinition
+     */
+    public function setOutputTypeMap(OutputTypeMap $outputTypeMap)
+    {
+        foreach ($this->available_image_widths as $width) {
+            $this->irds[$width]->setOutputTypeMap($outputTypeMap);
+        }
+        return $this;
+    }
 }
