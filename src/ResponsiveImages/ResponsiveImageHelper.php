@@ -1,13 +1,16 @@
 <?php
 namespace Wa72\AdaptImage\ResponsiveImages;
 
+use Imagine\Filter\FilterInterface;
 use Imagine\Image\ImagineInterface;
 use Wa72\AdaptImage\Exception\ImageClassNotRegisteredException;
 use Wa72\AdaptImage\Exception\ImageFileNotFoundException;
 use Wa72\AdaptImage\Exception\ImageResizingFailedException;
 use Wa72\AdaptImage\Exception\WidthNotAllowedException;
 use Wa72\AdaptImage\ImageResizer;
+use Wa72\AdaptImage\ImagineFilter\FilterChain;
 use Wa72\AdaptImage\Output\OutputPathGeneratorInterface;
+use Wa72\AdaptImage\Output\OutputTypeMap;
 
 /**
  * This class is the main entry point for working with responsive images. It needs an object implementing
@@ -44,6 +47,26 @@ class ResponsiveImageHelper
     protected $widths = [];
 
     /**
+     * @var FilterChain
+     */
+    protected $default_filters;
+
+    /**
+     * @var FilterChain
+     */
+    protected $default_post_filters;
+
+    /**
+     * @var OutputTypeMap
+     */
+    protected $default_output_type_map;
+
+    /**
+     * @var string One of the ImageInterface::FILTER_* constants
+     */
+    protected $default_scaling_algorithm;
+
+    /**
      *
      * @param ResponsiveImageRouterInterface $router
      * @param ImagineInterface $imagine
@@ -71,6 +94,18 @@ class ResponsiveImageHelper
     {
         if (array_key_exists($class->getName(), $this->classes)) {
             throw new \Exception(sprintf('A responsive image class with name "%s" is already registered', $class->getName()));
+        }
+        if ($this->default_filters instanceof FilterInterface) {
+            $class->addFilter($this->default_filters);
+        }
+        if ($this->default_post_filters instanceof FilterInterface) {
+            $class->addPostFilter($this->default_post_filters);
+        }
+        if ($this->default_scaling_algorithm != '') {
+            $class->setScaleAlgorithm($this->default_scaling_algorithm);
+        }
+        if ($this->default_output_type_map instanceof OutputTypeMap) {
+            $class->setOutputTypeMap($this->default_output_type_map);
         }
         $this->classes[$class->getName()] = $class;
     }
@@ -181,11 +216,71 @@ class ResponsiveImageHelper
      * Set an ImageResizer instance for use in resizing functions
      *
      * @param ImageResizer $resizer
-     * @return $this
+     * @return ResponsiveImageHelper $this
      */
     public function setResizer(ImageResizer $resizer)
     {
         $this->resizer = $resizer;
         return $this;
     }
+
+    /**
+     * Add additional default filters to be applied when resizing for all classes.
+     * This setting will be passed to a ResponsiveImageClass object when it is added by the addClass() method
+     *
+     * @param FilterInterface $default_filter
+     * @return ResponsiveImageHelper $this
+     */
+    public function addDefaultFilter(FilterInterface $default_filter)
+    {
+        if (!$this->default_filters instanceof FilterChain) {
+            $this->default_filters = new FilterChain();
+        }
+        $this->default_filters->add($default_filter);
+        return $this;
+    }
+
+    /**
+     * Set default post filters for all image classes.
+     * This setting will be passed to a ResponsiveImageClass object when it is added by the addClass() method
+     *
+     * @param \Imagine\Filter\FilterInterface $default_post_filter
+     * @return ResponsiveImageHelper $this
+     */
+    public function addDefaultPostFilter(FilterInterface $default_post_filter)
+    {
+        if (!$this->default_post_filters instanceof FilterChain) {
+            $this->default_post_filters = new FilterChain();
+        }
+        $this->default_post_filters->add($default_post_filter);
+        return $this;
+    }
+
+    /**
+     * Set a default OutputTypeMap for all image classes.
+     * This setting will be passed to a ResponsiveImageClass object when it is added by the addClass() method
+     *
+     * @param OutputTypeMap $default_output_type_map
+     * @return ResponsiveImageHelper $this
+     */
+    public function setDefaultOutputTypeMap(OutputTypeMap $default_output_type_map)
+    {
+        $this->default_output_type_map = $default_output_type_map;
+        return $this;
+    }
+
+    /**
+     * Set a default scaling algorithm for all image classes.
+     * This setting will be passed to a ResponsiveImageClass object when it is added by the addClass() method
+     *
+     * @param string $default_scaling_algorithm One of the ImageInterface::FILTER_* constants
+     * @return ResponsiveImageHelper $this
+     */
+    public function setDefaultScalingAlgorithm($default_scaling_algorithm)
+    {
+        $this->default_scaling_algorithm = $default_scaling_algorithm;
+        return $this;
+    }
+
+
 }
