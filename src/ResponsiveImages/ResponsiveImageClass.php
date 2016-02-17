@@ -258,7 +258,7 @@ class ResponsiveImageClass
     /**
      * Set the algorithm used for scaling
      *
-     * @param $algorithm string One of the ImageInterface::FILTER_* constants
+     * @param string $algorithm One of the ImageInterface::FILTER_* constants
      * @return $this
      */
     public function setScaleAlgorithm($algorithm)
