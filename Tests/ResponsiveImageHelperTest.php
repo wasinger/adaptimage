@@ -26,6 +26,18 @@ class ResponsiveImageHelperTest extends \PHPUnit_Framework_TestCase
         $srcset_expected = '/imagemock/500/image1.jpg 500w, /imagemock/1000/image1.jpg 1000w, /imagemock/2000/image1.jpg 1900w';
         $this->assertEquals($srcset_expected, $ri->getSrcsetAttributeValue());
         $this->assertEquals('100vw', $ri->getSizesAttributeValue());
+
+        $dom = new \DOMDocument();
+        $img = $dom->createElement('img');
+        $img->setAttribute('src', 'image2.jpg');
+        $helper->makeImgElementResponsive($img, 'first', true, true);
+        $srcset_expected = '/imagemock/500/image2.jpg 500w, /imagemock/1000/image2.jpg 1000w, /imagemock/2000/image2.jpg 1900w';
+        $this->assertEquals($srcset_expected, $img->getAttribute('srcset'));
+        $this->assertEquals('100vw', $img->getAttribute('sizes'));
+        $this->assertEquals('/imagemock/500/image2.jpg', $img->getAttribute('src'));
+        $this->assertEquals('500', $img->getAttribute('width'));
+        $this->assertEquals('316', $img->getAttribute('height'));
+
     }
 
 }
