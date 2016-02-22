@@ -67,6 +67,11 @@ class ResponsiveImageHelper
     protected $default_scaling_algorithm;
 
     /**
+     * @var bool
+     */
+    protected $classes_added = false;
+
+    /**
      *
      * @param ResponsiveImageRouterInterface $router
      * @param ImagineInterface $imagine
@@ -92,6 +97,7 @@ class ResponsiveImageHelper
      */
     public function addClass(ResponsiveImageClass $class)
     {
+        $this->classes_added = true;
         if (array_key_exists($class->getName(), $this->classes)) {
             throw new \Exception(sprintf('A responsive image class with name "%s" is already registered', $class->getName()));
         }
@@ -138,7 +144,7 @@ class ResponsiveImageHelper
     /**
      * Add srcset and sizes attributes to an HTML "img" tag
      *
-     * This method reads the image URL from the "src" attribute of an "img" tag, calculates the URLs and dimensions of
+     * This method reads the image URL from the "src" attribute of an "img" element, calculates the URLs and dimensions of
      * the various available image sizes according to the given "responsive image class", and adds the "srcset" and
      * "sizes" attribute value.
      *
@@ -164,7 +170,7 @@ class ResponsiveImageHelper
         $add_default_dimension_attrs = false
     )
     {
-        if ($img->tagName != 'img') throw new \InvalidArgumentException('$img must be an img element');
+        if ($img->tagName != 'img') throw new \InvalidArgumentException('$img must be an "img" element');
         if ((string) $class == '' || !array_key_exists($class, $this->classes)) {
             throw new ImageClassNotRegisteredException($class);
         }
@@ -172,6 +178,8 @@ class ResponsiveImageHelper
         if ($imageurl != '') {
             try {
                 $ri = $this->getResponsiveImage($imageurl, $class);
+                $img->setAttribute('srcset', $ri->getSrcsetAttributeValue());
+                $img->setAttribute('sizes', $ri->getSizesAttributeValue());
                 $default = $ri->getDefaultImageInfo();
                 if ($change_src_attr) {
                     $img->setAttribute('src', $default->getUrl());
@@ -180,8 +188,6 @@ class ResponsiveImageHelper
                     $img->setAttribute('width', $default->getWidth());
                     $img->setAttribute('height', $default->getHeight());
                 }
-                $img->setAttribute('srcset', $ri->getSrcsetAttributeValue());
-                $img->setAttribute('sizes', $ri->getSizesAttributeValue());
             } catch (\Exception $e) {
             };
         }
@@ -264,6 +270,9 @@ class ResponsiveImageHelper
      */
     public function addDefaultFilter(FilterInterface $default_filter)
     {
+        if ($this->classes_added) {
+            throw new \LogicException('Defaults must be set before image classes are added.');
+        }
         if (!$this->default_filters instanceof FilterChain) {
             $this->default_filters = new FilterChain();
         }
@@ -280,6 +289,9 @@ class ResponsiveImageHelper
      */
     public function addDefaultPostFilter(FilterInterface $default_post_filter)
     {
+        if ($this->classes_added) {
+            throw new \LogicException('Defaults must be set before image classes are added.');
+        }
         if (!$this->default_post_filters instanceof FilterChain) {
             $this->default_post_filters = new FilterChain();
         }
@@ -296,6 +308,9 @@ class ResponsiveImageHelper
      */
     public function setDefaultOutputTypeMap(OutputTypeMap $default_output_type_map)
     {
+        if ($this->classes_added) {
+            throw new \LogicException('Defaults must be set before image classes are added.');
+        }
         $this->default_output_type_map = $default_output_type_map;
         return $this;
     }
@@ -309,6 +324,9 @@ class ResponsiveImageHelper
      */
     public function setDefaultScalingAlgorithm($default_scaling_algorithm)
     {
+        if ($this->classes_added) {
+            throw new \LogicException('Defaults must be set before image classes are added.');
+        }
         $this->default_scaling_algorithm = $default_scaling_algorithm;
         return $this;
     }
