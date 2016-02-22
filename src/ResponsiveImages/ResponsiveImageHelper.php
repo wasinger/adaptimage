@@ -136,24 +136,55 @@ class ResponsiveImageHelper
     }
 
     /**
-     * Add srcset and sizes attributes to an img tag
+     * Add srcset and sizes attributes to an HTML "img" tag
      *
-     * @param \DOMElement $img
-     * @param string $class
+     * This method reads the image URL from the "src" attribute of an "img" tag, calculates the URLs and dimensions of
+     * the various available image sizes according to the given "responsive image class", and adds the "srcset" and
+     * "sizes" attribute value.
+     *
+     * Optionally, it can change the "src" attribute value to the URL of the default image size, and set the
+     * "width" and "height" attributes for the default image size.
+     *
+     * N.B. The URL given in the "src" attribute of the img element must be in a form the
+     * ResponsiveImageRouterInterface object $this->router is able to convert to a local file path.
+     * If the conversion fails, the method fails silently, i.e. the img element will not be changed.
+     *
+     * @param \DOMElement $img The "img" HTML element
+     * @param string $class The name of an "responsive image class" registered via addClass()
+     * @param bool $change_src_attr If true, set "src" attribute to the URL of the default image size
+     * @param bool $add_default_dimension_attrs If true, add "width" and "height" attributes for the default image size
+     * @throws \InvalidArgumentException If the DOMElement provided as $img parameter is not an "img" element
+     * @throws ImageClassNotRegisteredException If the $class parameter is not a registerd image class name
+     * @API
      */
-    public function makeImgElementResponsive(\DOMElement &$img, $class)
+    public function makeImgElementResponsive(
+        \DOMElement &$img, 
+        $class, 
+        $change_src_attr = false, 
+        $add_default_dimension_attrs = false
+    )
     {
         if ($img->tagName != 'img') throw new \InvalidArgumentException('$img must be an img element');
+        if ((string) $class == '' || !array_key_exists($class, $this->classes)) {
+            throw new ImageClassNotRegisteredException($class);
+        }
         $imageurl = $img->getAttribute('src');
+        if ($imageurl != '') {
             try {
                 $ri = $this->getResponsiveImage($imageurl, $class);
                 $default = $ri->getDefaultImageInfo();
-                $img->setAttribute('src', $default->getUrl());
-                $img->setAttribute('width', $default->getWidth());
-                $img->setAttribute('height', $default->getHeight());
+                if ($change_src_attr) {
+                    $img->setAttribute('src', $default->getUrl());
+                }
+                if ($add_default_dimension_attrs) {
+                    $img->setAttribute('width', $default->getWidth());
+                    $img->setAttribute('height', $default->getHeight());
+                }
                 $img->setAttribute('srcset', $ri->getSrcsetAttributeValue());
                 $img->setAttribute('sizes', $ri->getSizesAttributeValue());
-            } catch (\Exception $e) {};
+            } catch (\Exception $e) {
+            };
+        }
     }
 
     /**
