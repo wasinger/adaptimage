@@ -11,6 +11,7 @@ use Wa72\AdaptImage\ImageResizer;
 use Wa72\AdaptImage\ImagineFilter\FilterChain;
 use Wa72\AdaptImage\Output\OutputPathGeneratorInterface;
 use Wa72\AdaptImage\Output\OutputTypeMap;
+use Wa72\AdaptImage\WebImageInfo;
 
 /**
  * This class is the main entry point for working with responsive images. It needs an object implementing
@@ -181,12 +182,14 @@ class ResponsiveImageHelper
                 $img->setAttribute('srcset', $ri->getSrcsetAttributeValue());
                 $img->setAttribute('sizes', $ri->getSizesAttributeValue());
                 $default = $ri->getDefaultImageInfo();
-                if ($change_src_attr) {
-                    $img->setAttribute('src', $default->getUrl());
-                }
-                if ($add_default_dimension_attrs) {
-                    $img->setAttribute('width', $default->getWidth());
-                    $img->setAttribute('height', $default->getHeight());
+                if ($default instanceof WebImageInfo) {
+                    if ($change_src_attr) {
+                        $img->setAttribute('src', $default->getUrl());
+                    }
+                    if ($add_default_dimension_attrs) {
+                        $img->setAttribute('width', $default->getWidth());
+                        $img->setAttribute('height', $default->getHeight());
+                    }
                 }
             } catch (\Exception $e) {
             };

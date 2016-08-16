@@ -108,7 +108,15 @@ class ResponsiveImage
      */
     public function getDefaultImageInfo()
     {
-        return $this->versions[$this->class->getDefaultWidth()];
+        if (isset($this->versions[$this->class->getDefaultWidth()])) {
+            return $this->versions[$this->class->getDefaultWidth()];
+        } else {
+            // if the image is smaller than the class default width,
+            // $this->versions[$this->class->getDefaultWidth()] will not be defined.
+            //
+            // return the first available image version instead
+            return reset($this->versions);
+        }
     }
 
     /**
