@@ -46,7 +46,12 @@ class FixOrientation implements  FilterInterface, ResizingFilterInterface
             default:
                 break;
         }
-
+        // reset orientation in Exif data to 0
+        if ($image instanceof \Imagine\Imagick\Image) {
+            $image->getImagick()->setImageOrientation(0);
+        } else {
+            // TODO: how can this be done in GD and Gmagick?
+        }
         return $image;
     }
 
