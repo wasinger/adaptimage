@@ -49,7 +49,7 @@ class Crop implements FilterInterface, ResizingFilterInterface
         if (!$this->upscale && !$this->isImageBigEnough($imagesize)) {
             return $image;
         } elseif ($this->upscale && !$this->isImageBigEnough($imagesize)) {
-            $upscalefilter = new ProportionalResize($this->size, true, true);
+            $upscalefilter = new ProportionalResize($this->size->getWidth(), $this->size->getHeight(), true, true);
             $image = $upscalefilter->apply($image);
             $imagesize = $image->getSize();
             $start = new Point(
