@@ -2,6 +2,7 @@
 namespace Wa72\AdaptImage\ResponsiveImages;
 
 use Imagine\Image\Box;
+use Wa72\AdaptImage\Exception\ImageFileNotFoundException;
 use Wa72\AdaptImage\Exception\WidthNotAllowedException;
 use Wa72\AdaptImage\ImageFileInfo;
 use Wa72\AdaptImage\ImageResizer;
@@ -41,13 +42,18 @@ class ResponsiveImage
      * @param ResponsiveImageRouterInterface $router    The "router" for generating image URLs
      * @param string $original_image_url    The URL of the original image, typically relative to the web root dir
      * @param ResponsiveImageClass $class   The ResponsiveImageClass describing the available responsive image sizes
+     * @throws ImageFileNotFoundException If the image file does not exist or is not readable
      */
     function __construct(ResponsiveImageRouterInterface $router, $original_image_url, ResponsiveImageClass $class)
     {
         $this->original_image_url = $original_image_url;
         $this->class = $class;
 
-        $this->original_ifi = $router->getOriginalImageFileInfo($original_image_url);
+        try {
+            $this->original_ifi = $router->getOriginalImageFileInfo($original_image_url);
+        } catch (ImageFileNotFoundException $e) {
+            throw $e;
+        }
 
         $imgdata = [];
         $irds = $class->getImageResizeDefinitions();
