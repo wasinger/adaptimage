@@ -197,6 +197,28 @@ class ResponsiveImageHelper
     }
 
     /**
+     * @param string $imageurl
+     * @param string $imageclass
+     * @param array $attrs
+     * @return string
+     */
+    public function getResponsiveHtmlImageTag(string $imageurl, string $imageclass, $attrs = [])
+    {
+            $ri = $this->getResponsiveImage($imageurl, $imageclass);
+            $default = $ri->getDefaultImageInfo();
+            $s = '<img';
+            foreach ($attrs as $name => $value) {
+                $s .= ' ' . $name . '="' . \htmlspecialchars($value) . '"';
+            }
+            $s .= ' src="' . $default->getUrl() . '"';
+            $s .= ' width="' . $default->getWidth() . '"';
+            $s .= ' height="' . $default->getHeight() . '"';
+            $s .= ' srcset="' . $ri->getSrcsetAttributeValue() . '"';
+            $s .= ' sizes="' . $ri->getSizesAttributeValue() . '"';
+            return $s;
+    }
+
+    /**
      * Get ResponsiveImage object for a given original image and responsive image class
      *
      * @param string $imageurl The URL of the original image
