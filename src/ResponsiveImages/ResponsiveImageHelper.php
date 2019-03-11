@@ -204,18 +204,30 @@ class ResponsiveImageHelper
      */
     public function getResponsiveHtmlImageTag(string $imageurl, string $imageclass, $attrs = [])
     {
-            $ri = $this->getResponsiveImage($imageurl, $imageclass);
-            $default = $ri->getDefaultImageInfo();
-            $s = '<img';
-            foreach ($attrs as $name => $value) {
-                $s .= ' ' . $name . '="' . \htmlspecialchars($value) . '"';
+        $s = '<img';
+        foreach ($attrs as $name => $value) {
+            $s .= ' ' . $name . '="' . \htmlspecialchars($value) . '"';
+        }
+
+        if ($imageurl != '') {
+            try {
+                $ri = $this->getResponsiveImage($imageurl, $imageclass);
+                $default = $ri->getDefaultImageInfo();
+
+                $s .= ' src="' . $default->getUrl() . '"';
+                $s .= ' width="' . $default->getWidth() . '"';
+                $s .= ' height="' . $default->getHeight() . '"';
+                $s .= ' srcset="' . $ri->getSrcsetAttributeValue() . '"';
+                $s .= ' sizes="' . $ri->getSizesAttributeValue() . '"';
+            } catch (\Exception $e) {
+                $s .= ' src=""';
             }
-            $s .= ' src="' . $default->getUrl() . '"';
-            $s .= ' width="' . $default->getWidth() . '"';
-            $s .= ' height="' . $default->getHeight() . '"';
-            $s .= ' srcset="' . $ri->getSrcsetAttributeValue() . '"';
-            $s .= ' sizes="' . $ri->getSizesAttributeValue() . '"';
-            return $s;
+        } else {
+            $s .= ' src=""';
+        }
+
+        $s .= ' />';
+        return $s;
     }
 
     /**
