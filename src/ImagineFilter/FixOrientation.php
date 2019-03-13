@@ -46,13 +46,13 @@ class FixOrientation implements  FilterInterface, ResizingFilterInterface
                 $image->flipVertically();
                 break;
             case 5:
-                $image->rotate(-90)->flipHorizontally();
+                $image->rotate(90)->flipHorizontally();
                 break;
             case 6:
                 $image->rotate(90);
                 break;
             case 7:
-                $image->rotate(90)->flipHorizontally();
+                $image->rotate(-90)->flipHorizontally();
                 break;
             case 8:
                 $image->rotate(-90);
