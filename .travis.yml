@@ -10,7 +10,10 @@ env:
   - IMAGINE_VERSION=dev-develop
 
 before_script:
-  - composer require imagine/imagine:${IMAGINE_VERSION}
+  - composer require imagine/imagine:${IMAGINE_VERSION} --no-interaction --prefer-dist
+
+script:
+  - vendor/bin/phpunit
 
 matrix:
   allow_failures:
