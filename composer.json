@@ -11,12 +11,17 @@
         }
     ],
     "require":{
-        "php":">=5.4",
-        "imagine/imagine": "~0.6"
+        "php":">=7.1",
+        "ext-exif": "*",
+        "imagine/imagine": "^1"
     },
     "autoload":{
         "psr-4":{
             "Wa72\\AdaptImage\\":"src/"
         }
+    },
+    "require-dev": {
+        "lupka/phpunit-compare-images": "^1.0",
+        "phpunit/phpunit": "^7|^8"
     }
 }

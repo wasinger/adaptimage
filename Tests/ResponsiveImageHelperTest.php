@@ -2,16 +2,17 @@
 namespace Wa72\AdaptImage\Tests;
 
 
+use PHPUnit\Framework\TestCase;
 use Wa72\AdaptImage\ImageFileInfo;
 use Wa72\AdaptImage\ResponsiveImages\ResponsiveImageClass;
 use Wa72\AdaptImage\ResponsiveImages\ResponsiveImageHelper;
 use Wa72\AdaptImage\ResponsiveImages\ResponsiveImageRouterInterface;
 
-class ResponsiveImageHelperTest extends \PHPUnit_Framework_TestCase
+class ResponsiveImageHelperTest extends TestCase
 {
     protected $router;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->router = new MockResponsiveImageRouter();
     }

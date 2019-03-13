@@ -2,17 +2,18 @@
 namespace Wa72\AdaptImage\Tests;
 
 use Imagine\Gd\Imagine;
+use PHPUnit\Framework\TestCase;
 use Wa72\AdaptImage\ImageFileInfo;
 use Wa72\AdaptImage\ImageResizeDefinition;
 use Wa72\AdaptImage\ImageResizer;
 use Wa72\AdaptImage\Output\OutputPathGeneratorBasedir;
 
-class ImageResizerTest extends \PHPUnit_Framework_TestCase
+class ImageResizerTest extends TestCase
 {
     protected $output_path_generator;
     protected $imagine;
 
-    public function setUp()
+    public function setUp(): void
     {
         $cachedir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'ai-cache';
         $this->output_path_generator = new OutputPathGeneratorBasedir($cachedir);

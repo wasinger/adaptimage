@@ -66,6 +66,8 @@ class FixOrientation implements  FilterInterface, ResizingFilterInterface
             $image->getImagick()->setImageOrientation(1);
         } else {
             // TODO: how can this be done in GD and Gmagick?
+            // Workaround: delete all metadata
+            $image->strip();
         }
         return $image;
     }
