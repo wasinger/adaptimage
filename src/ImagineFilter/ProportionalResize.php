@@ -5,6 +5,7 @@ use Imagine\Filter\FilterInterface;
 use Imagine\Image\Box;
 use Imagine\Image\BoxInterface;
 use Imagine\Image\ImageInterface;
+use Wa72\AdaptImage\ImageResizeDefinition;
 
 /**
  * Imagine Filter that resizes the given image keeping its aspect ratio
@@ -15,6 +16,7 @@ use Imagine\Image\ImageInterface;
  */
 class ProportionalResize implements FilterInterface, ResizingFilterInterface
 {
+
     /**
      * Default scale algorithm
      *
@@ -44,7 +46,7 @@ class ProportionalResize implements FilterInterface, ResizingFilterInterface
 
     /**
      * @param int $width The desired new width.
-     * @param int $height The desired new height. If INF, it will not be restricted.
+     * @param int $height The desired new height. If INF or PHP_INT_MAX or ImageResizeDefinition::HEIGHT_UNRESTRICTED, it will not be restricted.
      * @param bool $min If true, the smaller dimension is used for scaling
      *                      (i.e. the resulting image will not fit into the bounding box)
      * @param bool $upscale Should the image be upscaled if it is smaller than new size?
@@ -53,11 +55,11 @@ class ProportionalResize implements FilterInterface, ResizingFilterInterface
      */
     public function __construct($width, $height, $min = false, $upscale = false, $scale_algorithm = null)
     {
-        if ($height === INF || $height === PHP_INT_MAX) {
+        if ($height === INF || $height === PHP_INT_MAX || $height === ImageResizeDefinition::HEIGHT_UNRESTRICTED) {
             if ($min) {
                 throw new \InvalidArgumentException('When $height is not limited, $min must be false');
             }
-            $height = PHP_INT_MAX; // set $height to PHP_INT_MAX as an integer marker for infinity
+            $height = ImageResizeDefinition::HEIGHT_UNRESTRICTED; // set $height to ImageResizeDefinition::HEIGHT_UNRESTRICTED as an integer marker for infinity
         }
         $this->size = new Box($width, $height);
         $this->min = $min;
@@ -82,8 +84,8 @@ class ProportionalResize implements FilterInterface, ResizingFilterInterface
      */
     public function calculateSize(BoxInterface $size)
     {
-        if ($this->size->getHeight() == PHP_INT_MAX && $this->size->getWidth() >= $size->getWidth() && !$this->upscale) {
-            // if height is PHP_INT_MAX this means it is to be ignored
+        if ($this->size->getHeight() == ImageResizeDefinition::HEIGHT_UNRESTRICTED && $this->size->getWidth() >= $size->getWidth() && !$this->upscale) {
+            // if height is ImageResizeDefinition::HEIGHT_UNRESTRICTED this means it is to be ignored
             return $size;
         } elseif ($size == $this->size || (!$this->upscale && $this->size->contains($size))) {
             return $size;
@@ -93,7 +95,7 @@ class ProportionalResize implements FilterInterface, ResizingFilterInterface
             $this->size->getHeight() / $size->getHeight()
         );
         if (
-            $this->size->getHeight() == PHP_INT_MAX
+            $this->size->getHeight() == ImageResizeDefinition::HEIGHT_UNRESTRICTED
             || ($this->min == false && $ratios[0] <= $ratios[1])
             || ($this->min == true && $ratios[0] >= $ratios[1])
         ) {

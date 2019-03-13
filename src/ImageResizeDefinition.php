@@ -24,6 +24,8 @@ class ImageResizeDefinition {
     const MODE_MIN = 'min';
     const MODE_CROP = 'crop';
 
+    const HEIGHT_UNRESTRICTED = 999999; // used to be INF; setting to 999999 is a workaround for a bug #705 in Imagine
+
     /**
      * @var int
      */
@@ -66,7 +68,7 @@ class ImageResizeDefinition {
      * @param int $width The width of the new size
      * @param int $height   The height of the new size.
      *                      If set to 0 (default), it will be set to the same value as width.
-     *                      If set to INF, height will not be restricted.
+     *                      If set to ImageResizeDefinition::HEIGHT_UNRESTRICTED, height will not be restricted.
      * @param string $mode one of the ImageResizeDefinition::MODE_* constants, i.e. 'max', 'min', or 'crop'
      * @param bool $upscale Should the image be upscaled if it is smaller than the new size?
      * @param string|null $scale_algorithm One of the ImageInterface::FILTER_* constants, defaults to ProportionalResize::$default_scale_algorithm
@@ -74,7 +76,7 @@ class ImageResizeDefinition {
     public function __construct($width, $height = 0, $mode = ImageResizeDefinition::MODE_MAX, $upscale = false, $scale_algorithm = null)
     {
         $height = $height ?: $width; // if height is 0 (or not set), it defaults to $width
-        if ($mode != ImageResizeDefinition::MODE_MAX && $height === INF) {
+        if ($mode != ImageResizeDefinition::MODE_MAX && $height === ImageResizeDefinition::HEIGHT_UNRESTRICTED) {
             throw new \InvalidArgumentException('Unlimited height is only allowed in "max" mode');
         }
         if ($width < 1 || $height < 1) {
@@ -217,7 +219,7 @@ class ImageResizeDefinition {
      * @param int $width The width of the new size
      * @param int $height   The height of the new size.
      *                      If set to 0 (default), it will be set to the same value as width.
-     *                      If set to INF, height will not be restricted.
+     *                      If set to ImageResizeDefinition::HEIGHT_UNRESTRICTED, height will not be restricted.
      * @param string $mode one of the ImageResizeDefinition::MODE_* constants, i.e. 'max', 'min', or 'crop'
      * @param bool $upscale Should the image be upscaled if it is smaller than the new size?
      * @return ImageResizeDefinition
