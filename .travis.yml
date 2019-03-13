@@ -10,6 +10,9 @@ env:
   - IMAGINE_VERSION=dev-develop
 
 before_script:
+  - sudo apt-get -y --reinstall install imagemagick
+  - pecl channel-update pecl.php.net
+  - yes | pecl install imagick
   - composer require imagine/imagine:${IMAGINE_VERSION} --no-interaction --prefer-dist
 
 script:
