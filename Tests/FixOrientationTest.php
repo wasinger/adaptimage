@@ -38,7 +38,7 @@ class FixOrientationTest extends TestCase
                 $orientation = $i;
                 $autorotate = new FixOrientation($orientation);
                 $autorotate->apply($this->imagine->open($image))->save($image2);
-                $this->assertImageSimilarity($image1, $image2, $threshold = 0.015,
+                $this->assertImageSimilarity($image1, $image2, $threshold = 0.01,
                     'Images not within similarity threshold: ' . $image_filename);
             }
         }
