@@ -71,6 +71,9 @@ class ResponsiveImageHelper
      * @var bool
      */
     protected $classes_added = false;
+    
+    
+    protected $supported_types = ['image/jpeg', 'image/png', 'image/gif'];
 
     /**
      *
@@ -199,28 +202,36 @@ class ResponsiveImageHelper
     /**
      * @param string $imageurl
      * @param string $imageclass
-     * @param array $attrs
+     * @param array $options ['attr' => [associative array of html attributes], 'add_default_dimension_attrs' => true|false]
      * @return string
      */
-    public function getResponsiveHtmlImageTag(string $imageurl, string $imageclass, $attrs = [])
+    public function getResponsiveHtmlImageTag(string $imageurl, string $imageclass, $options = [])
     {
+        $options = array_replace([
+            'attr' => [],
+            'add_default_dimension_attrs' => false
+        ], $options);
+        
         $s = '<img';
-        foreach ($attrs as $name => $value) {
+        foreach ($options['attr'] as $name => $value) {
             $s .= ' ' . $name . '="' . \htmlspecialchars($value) . '"';
         }
+
+        $show_dimensions = $options['add_default_dimension_attrs'];
 
         if ($imageurl != '') {
             try {
                 $ri = $this->getResponsiveImage($imageurl, $imageclass);
                 $default = $ri->getDefaultImageInfo();
-
                 $s .= ' src="' . $default->getUrl() . '"';
-                $s .= ' width="' . $default->getWidth() . '"';
-                $s .= ' height="' . $default->getHeight() . '"';
+                if ($show_dimensions) {
+                    $s .= ' width="' . $default->getWidth() . '"';
+                    $s .= ' height="' . $default->getHeight() . '"';
+                }
                 $s .= ' srcset="' . $ri->getSrcsetAttributeValue() . '"';
                 $s .= ' sizes="' . $ri->getSizesAttributeValue() . '"';
             } catch (\Exception $e) {
-                $s .= ' src=""';
+                $s .= ' src="'.$imageurl.'"';
             }
         } else {
             $s .= ' src=""';
@@ -239,7 +250,7 @@ class ResponsiveImageHelper
      */
     public function getResponsiveImage($imageurl, $imageclass)
     {
-        return new ResponsiveImage($this->router, $imageurl, $this->getClass($imageclass));
+        return new ResponsiveImage($this, $imageurl, $this->getClass($imageclass));
     }
 
     /**
@@ -368,5 +379,35 @@ class ResponsiveImageHelper
         return $this;
     }
 
+    /**
+     * @return array
+     */
+    public function getSupportedTypes()
+    {
+        return $this->supported_types;
+    }
+
+    /**
+     * @param array $supported_types
+     */
+    public function setSupportedTypes($supported_types)
+    {
+        $this->supported_types = $supported_types;
+    }
+    
+    public function supports($mime_type)
+    {
+        return in_array($mime_type, $this->getSupportedTypes());
+    }
+
+    /**
+     * @return ResponsiveImageRouterInterface
+     */
+    public function getRouter()
+    {
+        return $this->router;
+    }
+    
+    
 
 }

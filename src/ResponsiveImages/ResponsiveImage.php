@@ -3,6 +3,7 @@ namespace Wa72\AdaptImage\ResponsiveImages;
 
 use Imagine\Image\Box;
 use Wa72\AdaptImage\Exception\ImageFileNotFoundException;
+use Wa72\AdaptImage\Exception\ImageTypeNotSupportedException;
 use Wa72\AdaptImage\Exception\WidthNotAllowedException;
 use Wa72\AdaptImage\ImageFileInfo;
 use Wa72\AdaptImage\ImageResizer;
@@ -39,21 +40,26 @@ class ResponsiveImage
     /**
      * ResponsiveImage constructor.
      *
-     * @param ResponsiveImageRouterInterface $router    The "router" for generating image URLs
+     * @param ResponsiveImageHelper $helper    The "router" for generating image URLs
      * @param string $original_image_url    The URL of the original image, typically relative to the web root dir
      * @param ResponsiveImageClass $class   The ResponsiveImageClass describing the available responsive image sizes
      * @throws ImageFileNotFoundException If the image file does not exist or is not readable
      */
-    function __construct(ResponsiveImageRouterInterface $router, $original_image_url, ResponsiveImageClass $class)
+    function __construct(ResponsiveImageHelper $helper, $original_image_url, ResponsiveImageClass $class)
     {
         $this->original_image_url = $original_image_url;
         $this->class = $class;
 
         try {
-            $this->original_ifi = $router->getOriginalImageFileInfo($original_image_url);
+            $this->original_ifi = $helper->getRouter()->getOriginalImageFileInfo($original_image_url);
         } catch (ImageFileNotFoundException $e) {
             throw $e;
         }
+
+        if (!$helper->supports($this->original_ifi->getMimetype())) {
+            throw new ImageTypeNotSupportedException($this->original_ifi->getMimetype());
+        }
+        
 
         $imgdata = [];
         $irds = $class->getImageResizeDefinitions();
@@ -62,7 +68,7 @@ class ResponsiveImage
             $ii = $ird->calculateSize(new Box($this->original_ifi->getWidth(), $this->original_ifi->getHeight()));
             if ($ii->getWidth() != $prevwidth) { // avoid duplicates
                 $imgdata[$width] = new WebImageInfo(
-                    $router->generateUrl($original_image_url, $class->getName(), $width),
+                    $helper->getRouter()->generateUrl($original_image_url, $class->getName(), $width),
                     $ii->getWidth(),
                     $ii->getHeight(),
                     $this->original_ifi->getMimetype()
