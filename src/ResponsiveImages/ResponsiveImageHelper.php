@@ -407,7 +407,13 @@ class ResponsiveImageHelper
     {
         return $this->router;
     }
-    
-    
+
+    /**
+     * @param ResponsiveImageRouterInterface $router
+     */
+    public function setRouter($router)
+    {
+        $this->router = $router;
+    }
 
 }
