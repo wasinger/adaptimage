@@ -76,6 +76,7 @@ class ResponsiveImageClass
      *                                          already has the specified size and does not get resized at all.
      *
      * @param OutputTypeMap|null $output_type_map Set an OutputTypeMap for file type conversion when resizing
+     * @param string $mode Crop mode, one of the ImageResizeDefinition::MODE_xx constants, default: MODE_MAX
      */
     public function __construct(
         $name,
@@ -87,7 +88,8 @@ class ResponsiveImageClass
         $scale_algorithm = null,
         $additional_filters = [],
         $post_filters = [],
-        $output_type_map = null
+        $output_type_map = null,
+        $mode = ImageResizeDefinition::MODE_MAX
     )
     {
         $this->name = $name;
@@ -106,7 +108,7 @@ class ResponsiveImageClass
             if (is_callable($height_constraint)) {
                 $height = call_user_func($height_constraint, $width);
             }
-            $this->irds[$width] = ImageResizeDefinition::create($width, $height, ImageResizeDefinition::MODE_MAX, $upscale);
+            $this->irds[$width] = ImageResizeDefinition::create($width, $height, $mode, $upscale);
             if (count($additional_filters)) {
                 foreach ($additional_filters as $filter) {
                     $this->irds[$width]->addFilter($filter);
