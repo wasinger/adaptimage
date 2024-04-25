@@ -1,6 +1,7 @@
 <?php
 namespace Wa72\AdaptImage\ResponsiveImages;
 
+use Wa72\AdaptImage\Exception\FiletypeNotSupportedException;
 use Wa72\AdaptImage\Exception\ImageFileNotFoundException;
 use Wa72\AdaptImage\ImageFileInfo;
 
@@ -28,6 +29,7 @@ interface ResponsiveImageRouterInterface
      * @param $original_image_url
      * @return ImageFileInfo
      * @throws ImageFileNotFoundException If the image file does not exist or is not readable
+     * @throws FiletypeNotSupportedException If the image is not supported by PHP getimagesize() function
      */
     public function getOriginalImageFileInfo($original_image_url);
 

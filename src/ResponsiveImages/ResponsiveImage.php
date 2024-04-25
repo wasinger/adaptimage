@@ -50,16 +50,11 @@ class ResponsiveImage
         $this->original_image_url = $original_image_url;
         $this->class = $class;
 
-        try {
-            $this->original_ifi = $helper->getRouter()->getOriginalImageFileInfo($original_image_url);
-        } catch (ImageFileNotFoundException $e) {
-            throw $e;
-        }
+        $this->original_ifi = $helper->getRouter()->getOriginalImageFileInfo($original_image_url);
 
         if (!$helper->supports($this->original_ifi->getMimetype())) {
             throw new ImageTypeNotSupportedException($this->original_ifi->getMimetype());
         }
-        
 
         $imgdata = [];
         $irds = $class->getImageResizeDefinitions();

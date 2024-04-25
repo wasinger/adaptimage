@@ -3,6 +3,7 @@ namespace Wa72\AdaptImage\Tests;
 
 
 use PHPUnit\Framework\TestCase;
+use Wa72\AdaptImage\Exception\FiletypeNotSupportedException;
 use Wa72\AdaptImage\ImageFileInfo;
 use Wa72\AdaptImage\ResponsiveImages\ResponsiveImageClass;
 use Wa72\AdaptImage\ResponsiveImages\ResponsiveImageHelper;
@@ -39,6 +40,14 @@ class ResponsiveImageHelperTest extends TestCase
         $this->assertEquals('500', $img->getAttribute('width'));
         $this->assertEquals('316', $img->getAttribute('height'));
 
+        // don't touch svg images
+        $img = $dom->createElement('img');
+        $img->setAttribute('src', 'image3.svg');
+        $helper->makeImgElementResponsive($img, 'first', true, true);
+        $this->assertFalse($img->hasAttribute('srcset'));
+        $this->assertFalse($img->hasAttribute('sizes'));
+        $this->assertEquals('image3.svg', $img->getAttribute('src'));
+
     }
 
 }
@@ -47,6 +56,8 @@ class MockResponsiveImageRouter implements ResponsiveImageRouterInterface
 {
     public function getOriginalImageFileInfo($original_image_url)
     {
+        $ext = pathinfo($original_image_url, PATHINFO_EXTENSION);
+        if ($ext != 'jpg') throw new FiletypeNotSupportedException($original_image_url);
         return new ImageFileInfo($original_image_url, 1900, 1200, IMAGETYPE_JPEG);
     }
 

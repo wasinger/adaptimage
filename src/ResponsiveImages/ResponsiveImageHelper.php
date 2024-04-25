@@ -195,6 +195,7 @@ class ResponsiveImageHelper
                     }
                 }
             } catch (\Exception $e) {
+                // do nothing in case of an exception
             };
         }
     }

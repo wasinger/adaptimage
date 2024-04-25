@@ -1,7 +1,9 @@
 <?php
 namespace Wa72\AdaptImage;
 
+use Wa72\AdaptImage\Exception\FiletypeNotSupportedException;
 use Wa72\AdaptImage\Exception\ImageFileNotFoundException;
+use Wa72\AdaptImage\Exception\ImageTypeNotSupportedException;
 
 /**
  * Class ImageFileInfo represents information about an image file
@@ -10,6 +12,7 @@ use Wa72\AdaptImage\Exception\ImageFileNotFoundException;
 class ImageFileInfo {
     protected $pathname;
     protected $filename;
+    protected $filemtime;
     /**
      * @var int
      */
@@ -75,13 +78,17 @@ class ImageFileInfo {
      * @param string $pathname The pathname of an image file.
      * @return ImageFileInfo
      * @throws ImageFileNotFoundException If the image does not exist
+     * @throws FiletypeNotSupportedException If the image is not supported by PHP getimagesize() function
      */
-    static public function createFromFile($pathname)
+    static public function createFromFile($pathname): ImageFileInfo
     {
         if (!file_exists($pathname)) {
             throw new ImageFileNotFoundException($pathname);
         }
         $ii = getimagesize($pathname);
+        if ($ii === FALSE) {
+            throw new FiletypeNotSupportedException($pathname);
+        }
         $width = $ii[0];
         $height = $ii[1];
         $imagetype = $ii[2];
