@@ -2,6 +2,7 @@
 namespace Wa72\AdaptImage;
 
 use Imagine\Image\ImagineInterface;
+use Wa72\AdaptImage\Exception\FiletypeNotSupportedException;
 use Wa72\AdaptImage\Output\OutputPathGeneratorBasedir;
 use Wa72\AdaptImage\Output\OutputPathGeneratorInterface;
 
@@ -98,10 +99,14 @@ class AdaptiveImageResizer
      *                              if true, generates image smaller than width
      *                              (if there is not ImageResizeDefinition exactly matching width)
      * @return ImageFileInfo        Information about the resized image such as pathname, type, and size
+     * @throws FiletypeNotSupportedException If the original image type is not supported
      * @throws \Exception           If the resized image can not be generated
      */
     public function resize($really_do_it, ImageFileInfo $image, $width, $fit_in_width = false)
     {
+        if (!$image->isSupported()) {
+            throw new FiletypeNotSupportedException($image->getPathname());
+        }
         $ird = $this->getImageResizeDefinitionForWidth($width, $fit_in_width);
         if ($ird === null) {
             throw new \Exception('No ImageResizeDefinitions available');

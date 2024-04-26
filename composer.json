@@ -13,6 +13,7 @@
     "require":{
         "php":">=7.4",
         "ext-exif": "*",
+        "ext-fileinfo": "*",
         "imagine/imagine": "^1"
     },
     "autoload":{

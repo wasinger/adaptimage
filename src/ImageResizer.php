@@ -3,6 +3,7 @@ namespace Wa72\AdaptImage;
 
 use Imagine\Image\Box;
 use Imagine\Image\ImagineInterface;
+use Wa72\AdaptImage\Exception\FiletypeNotSupportedException;
 use Wa72\AdaptImage\Exception\ImageFileNotFoundException;
 use Wa72\AdaptImage\Exception\ImageResizingFailedException;
 use Wa72\AdaptImage\ImagineFilter\FilterChain;
@@ -47,11 +48,15 @@ class ImageResizer {
      *                                                  that will be applied before the resizing transformation
      *                                                  Used for image rotation and custom thumbnail crops
      * @return ImageFileInfo|static
+     * @throws FiletypeNotSupportedException If the original image type is not supported
      * @throws ImageFileNotFoundException If the original image file does not exist or is not readable
      * @throws ImageResizingFailedException If the image could not be resized
      */
     public function resize(ImageResizeDefinition $image_resize_definition, ImageFileInfo $image, $really_do_it = false, $pre_transformation = null)
     {
+        if (!$image->isSupported()) {
+            throw new FiletypeNotSupportedException($image->getPathname());
+        }
         if ($image->getOrientation() != 1) {
             if ($pre_transformation == null) {
                 $pre_transformation = new FilterChain($this->imagine);
